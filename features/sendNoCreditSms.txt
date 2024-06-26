@@ -1,0 +1,10 @@
+Feature: Sending SMS
+
+    Scenario: Sending a simple SMS to a recipient
+            Given the text to send "Payment reminder for your invoice." 
+            Given the phone number is "0698765432"
+            When the user submits a request to send SMS
+            Then the system refuses to send the SMS
+            And the system returns an error message indicating that the SMS credit is insufficient
+
+            

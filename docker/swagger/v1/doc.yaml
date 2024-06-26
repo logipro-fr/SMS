@@ -1,0 +1,86 @@
+openapi: 3.1.0
+info:
+  title: Sms API
+  version: 1.0.0
+servers:
+  - url: http://172.17.0.1:11380/api/v1
+    description: Local server
+paths:
+  /sms/send:
+    post:
+      summary: Sending an SMS
+      operationId: Sms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messageText:
+                  type: string
+                  description: The text of the sent SMS
+                  example: Hello, this is a test message.
+                phoneNumber:
+                  type: string
+                  description: The phone number to which the SMS was sent
+                  example: ['+1234567890']
+      responses:
+        '200':
+          description: SMS successfully sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates whether the SMS send was successful
+                    example: true
+                  statusMessage:
+                    type: string
+                    description: Message associated with the response
+                    example: Message sent successfully
+                  data:
+                    type: object
+                    description: Details about the sent SMS
+                    properties:
+                      messageText:
+                        type: string
+                        description: The text of the sent SMS
+                        example: Hello, this is a test message.
+                      phoneNumber:
+                        type: string
+                        description: The phone number to which the SMS was sent
+                        example: ['+1234567890']
+        '402':
+          description: Payment required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates whether the SMS send was successful
+                    example: false
+                  errorCode:
+                    type: string
+                    description: Name of the exception class if any error occurs
+                    example: SmsApiBadResponseException
+                  statusMessage:
+                    type: string
+                    description: Message associated with the response
+                    example: Invalid credentials, payment required!
+                  data:
+                    type: object
+                    description: Additional information about the error
+                    properties:
+                      messageText:
+                        type: string
+                        description: The text of the SMS that failed to send
+                        example: Hello, this is a test message.
+                      phoneNumber:
+                        type: string
+                        description: The phone number to which the SMS failed to be sent
+                        example: ['+1234567890']

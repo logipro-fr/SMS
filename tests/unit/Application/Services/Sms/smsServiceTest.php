@@ -77,26 +77,16 @@ class SmsServiceTest extends TestCase
         $sendSmsProvider = new SendSms($client);
         $repository = new SmsRepositoryMemory();
         $service = new SmsService($repository, $sendSmsProvider);
-
         $smsId = new SmsId('test');
-
         $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', ['+33123456789'], $smsId);
 
 
         $service->execute($requestSms);
         $response = $service->getResponse();
+        $savedSms = $repository->findById($smsId);
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->statusMessage);
-
-        $repository->add($requestSms->sms);
-
-        $foundSms1 = $repository->findById($requestSms->sms->getId());
-
-        $this->assertEquals('test', $foundSms1->getId());
-
-        $savedSms = $repository->findById($requestSms->sms->getId());
         $this->assertNotNull($savedSms);
-
         $this->assertEquals($requestSms->sms->getSmsMessage(), $savedSms->getSmsMessage());
         $this->assertEquals($requestSms->sms->getSmsPhoneNumber(), $savedSms->getSmsPhoneNumber());
     }

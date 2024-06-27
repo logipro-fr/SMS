@@ -21,6 +21,7 @@ class SendSms
     private const ERROR_RECEIVERS = "Error sending message, check recipient!";
 
     private const LINK_OVH = "/sms/%s/jobs";
+    private const SERVICE_NUMBER_OVH = 0;
 
     private string $APPLICATION_KEY_OVH;
     private string $APPLICATION_SECRET_OVH;
@@ -67,7 +68,7 @@ class SendSms
         );
 
         $smsServices = $conn->get('/sms/');
-        $response = $conn->post(sprintf(self::LINK_OVH, $smsServices[0]), $content);
+        $response = $conn->post(sprintf(self::LINK_OVH, $smsServices[self::SERVICE_NUMBER_OVH]), $content);
 
         if ($response['validReceivers']) {
             return new StatusMessage(self::SENDING_MESSAGE);

@@ -30,11 +30,7 @@ class SmsService
 
         $statusMessage = new StatusMessage($statusMessageText);
 
-        $sms = new Sms(
-            new MessageText($requestSms->sms->getSmsMessage()),
-            new PhoneNumber($requestSms->sms->getSmsPhoneNumber())
-        );
-        $this->repository->add($sms);
+        $this->repository->add($requestSms->sms);
 
         $this->response = new ResponseServiceSms($statusMessage);
     }

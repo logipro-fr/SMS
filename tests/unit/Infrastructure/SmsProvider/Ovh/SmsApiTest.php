@@ -7,6 +7,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
 use Sms\Domain\Model\SmsModel\MessageText;
 use Sms\Domain\Model\SmsModel\PhoneNumber;
 use Sms\Domain\Model\SmsModel\Sms;
@@ -27,6 +28,7 @@ class SmsApiTest extends TestCase
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
     private const LINK = '/../../../../ressources/responseobject.json';
+    private const ERROR_RECEIVERS = "Error sending message, check recipient!";
 
     private string $messageText;
     /**
@@ -66,6 +68,28 @@ class SmsApiTest extends TestCase
         )));
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
+    }
+
+    public function testSendSmsThrowsExceptionForInvalidReceivers(): void
+    {
+        $mock = new MockHandler([
+            new Response(self::SENDING_CODE, []),
+            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => []])),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $smsApi = new SendSms($client);
+
+        $this->expectException(SmsApiBadReceiversException::class);
+        $this->expectExceptionMessage(self::ERROR_RECEIVERS);
+
+
+        $smsApi->sendSms(new RequestSms(new Sms(
+            new MessageText(self::MESSAGE),
+            new PhoneNumber(self::PHONE_NUMBER)
+        )));
     }
 
 

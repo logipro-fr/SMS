@@ -13,10 +13,11 @@
     </testsuite>
   </testsuites>
   <php>
-  <env name="APP_ENV" value="test" force="true"/>
-  <env name="KERNEL_CLASS" value="Sms\Infrastructure\Shared\Symfony\Kernel"/>
-  <env name="DATABASE_URL" value="mysql://root:logipro@sms-mariadb:3306/sms?serverVersion=10.11.5-MariaDB&amp;charset=utf8mb4"/> 
-  <env name="APP_DEBUG" value="0"/>
+    <env name="APP_ENV" value="test" force="true"/>
+    <env name="KERNEL_CLASS" value="Sms\Infrastructure\Shared\Symfony\Kernel"/>
+    <env name="DATABASE_URL" value="mysql://root:logipro@sms-mariadb:3306/sms?serverVersion=10.11.5-MariaDB&amp;charset=utf8mb4"/> 
+    <env name="APP_DEBUG" value="0"/>
+    <env name="PHONE_NUMBER" value="PutYourPhoneNumberINTO-.env.localToSuccedRealSendSMSIntegrationTest"/>
   </php>
   <source>
     <include>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sms\Tests;
+namespace Sms\Tests\Infrastructure\SmsProvider\Ovh;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -13,7 +13,6 @@ use Sms\Domain\Model\SmsModel\PhoneNumber;
 use Sms\Domain\Model\SmsModel\Sms;
 use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
 use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
-use Sms\Tests\BaseTestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
 use function Safe\file_get_contents;
@@ -44,11 +43,8 @@ class SmsApiTest extends TestCase
         $this->phoneNumber = self::PHONE_NUMBER;
         $this->messageText = self::MESSAGE;
         $dotenv = new Dotenv();
-        $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env.local');
+        $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
     }
-
-
-
 
     public function testSendSms(): void
     {

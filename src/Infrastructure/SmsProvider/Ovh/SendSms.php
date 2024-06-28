@@ -23,32 +23,11 @@ class SendSms
     private const LINK_OVH = "/sms/%s/jobs";
     private const SERVICE_NUMBER_OVH = 0;
 
-    private string $APPLICATION_KEY_OVH;
-    private string $APPLICATION_SECRET_OVH;
-    private string $CONSUMER_KEY_OVH;
 
     public function __construct(
-        private ?Client $http_client,
-        ?string $applicationKey = null,
-        ?string $applicationSecretKey = null,
-        ?string $consumerKey = null,
+        private ?Client $http_client
     ) {
         $this->http_client = $http_client;
-
-        if ($applicationKey == null) {
-            $applicationKey = $_ENV["APPLICATION_KEY_OVH"];
-        }
-        $this->APPLICATION_KEY_OVH = $applicationKey;
-
-        if ($applicationSecretKey == null) {
-            $applicationSecretKey = $_ENV["APPLICATION_SECRET_OVH"];
-        }
-        $this->APPLICATION_SECRET_OVH = $applicationSecretKey;
-
-        if ($consumerKey == null) {
-            $consumerKey = $_ENV["CONSUMER_KEY_OVH"];
-        }
-        $this->CONSUMER_KEY_OVH = $consumerKey;
     }
 
 
@@ -59,11 +38,13 @@ class SendSms
             $requestSms->sms->getSmsPhoneNumber(),
         );
 
+        $key = new OvhKey();
+
         $conn = new Api(
-            $this->APPLICATION_KEY_OVH,
-            $this->APPLICATION_SECRET_OVH,
+            $key->getApplicationKey(),
+            $key->getApplicationSecret(),
             'ovh-eu',
-            $this->CONSUMER_KEY_OVH,
+            $key->getConsumerKey(),
             $this -> http_client,
         );
 

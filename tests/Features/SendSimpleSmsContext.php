@@ -9,15 +9,14 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\Assert;
-use Sms\Application\Services\Sms\RequestInterface;
 use Sms\Application\Services\Sms\RequestServiceSms;
 use Sms\Application\Services\Sms\ResponseServiceSms;
 use Sms\Application\Services\Sms\SmsService;
 use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
 use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Domain\Model\SmsModel\StatusMessage;
 use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
 use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * Defines application features from the specific context.
@@ -33,6 +32,12 @@ class SendSimpleSmsContext implements Context
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
 
+
+    public function __construct()
+    {
+        $dotenv = new Dotenv();
+        $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
+    }
 
      /**
      * @Given the text to send :messageText
@@ -58,13 +63,6 @@ class SendSimpleSmsContext implements Context
     public function submitsARequestToSendSms(): void
     {
         $this->request = FactorySmsBuilder::createRequestServiceSms($this->message, $this->phoneNumber, new SmsId());
-    }
-
-    /**
-     * @Then the system sends the SMS to the specified number
-     */
-    public function theSystemSendsTheSmsToTheSpecifiedNumber(): void
-    {
 
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
@@ -85,7 +83,15 @@ class SendSimpleSmsContext implements Context
     }
 
     /**
-     * @Then the system returns an acknowledgment indicating that the message has been transmitted to the SMS service provider
+     * @Then the system sends the SMS to the specified number
+     */
+    public function theSystemSendsTheSmsToTheSpecifiedNumber(): void
+    {
+    }
+
+    /**
+     * @Then the system returns an acknowledgment indicating that the message has been transmitted to the SMS service \
+     * provider
      */
     public function returnsAnAcknowledgment(): void
     {

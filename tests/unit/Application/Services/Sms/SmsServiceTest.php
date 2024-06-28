@@ -8,16 +8,13 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
-use Sms\Application\Services\Sms\RequestServiceSms;
-use Sms\Application\Services\Sms\SmsService;
+use Sms\Application\Services\Sms\SendSms;
 use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
 use Sms\Domain\Model\SmsModel\MessageText;
 use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Domain\Model\SmsModel\SmsFactory;
 use Sms\Domain\Model\SmsModel\SmsId;
 use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 
 class SmsServiceTest extends TestCase
 {
@@ -43,11 +40,11 @@ class SmsServiceTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SmsService($repository, $smsApi);
+        $service = new SendSms($repository, $smsApi);
 
-        $requestSms = FactorySmsBuilder::createRequestServiceSms('test', ['+33123456789'], new SmsId('test'));
+        $requestSms = FactorySmsBuilder::createRequestServiceSms('test', ['+33123456789']);
         $service->execute($requestSms);
         $response1 = $service->getResponse();
 
@@ -74,20 +71,19 @@ class SmsServiceTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $sendSmsProvider = new SendSms($client);
+        $sendSmsProvider = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SmsService($repository, $sendSmsProvider);
-        $smsId = new SmsId('test');
-        $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', ['+33123456789'], $smsId);
+        $sut = new SendSms($repository, $sendSmsProvider);
 
+        $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', ['+33123456789']);
 
-        $service->execute($requestSms);
-        $response = $service->getResponse();
-        $savedSms = $repository->findById($smsId);
+        $sut->execute($requestSms);
+        $response = $sut->getResponse();
+        $savedSms = $repository->findById($response->smsId);
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->statusMessage);
         $this->assertNotNull($savedSms);
-        $this->assertEquals($requestSms->sms->getSmsMessage(), $savedSms->getSmsMessage());
-        $this->assertEquals($requestSms->sms->getSmsPhoneNumber(), $savedSms->getSmsPhoneNumber());
+        $this->assertEquals(new MessageText('Test'), $savedSms->getSmsMessage());
+        $this->assertEquals(['+33123456789'], $savedSms->getSmsPhoneNumber());
     }
 }

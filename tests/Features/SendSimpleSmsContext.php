@@ -9,13 +9,13 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\Assert;
-use Sms\Application\Services\Sms\RequestServiceSms;
-use Sms\Application\Services\Sms\ResponseServiceSms;
-use Sms\Application\Services\Sms\SmsService;
+use Sms\Application\Services\Sms\SendSmsRequest;
+use Sms\Application\Services\Sms\SendSmsResponse;
+use Sms\Application\Services\Sms\SendSms;
 use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
 use Sms\Domain\Model\SmsModel\SmsId;
 use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
@@ -23,11 +23,11 @@ use Symfony\Component\Dotenv\Dotenv;
  */
 class SendSimpleSmsContext implements Context
 {
-    private ResponseServiceSms $response;
+    private SendSmsResponse $response;
     private string $message;
     /** @var array<string> $phoneNumber */
     private array $phoneNumber;
-    private RequestServiceSms $request;
+    private SendSmsRequest $request;
     private const RESPONSE_OBJECT = "responseobject.json";
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
@@ -62,7 +62,7 @@ class SendSimpleSmsContext implements Context
      */
     public function submitsARequestToSendSms(): void
     {
-        $this->request = FactorySmsBuilder::createRequestServiceSms($this->message, $this->phoneNumber, new SmsId());
+        $this->request = FactorySmsBuilder::createRequestServiceSms($this->message, $this->phoneNumber);
 
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
@@ -72,9 +72,9 @@ class SendSimpleSmsContext implements Context
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SmsService($repository, $smsApi);
+        $service = new SendSms($repository, $smsApi);
 
 
         $service->execute($this->request);

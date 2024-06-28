@@ -2,7 +2,7 @@
 
 namespace Sms\Domain\Model\SmsModel;
 
-use Sms\Application\Services\Sms\RequestServiceSms;
+use Sms\Application\Services\Sms\SendSmsRequest;
 
 class FactorySmsBuilder
 {
@@ -22,9 +22,7 @@ class FactorySmsBuilder
     public static function createRequestServiceSms(
         string $smsMessage,
         array $smsPhoneNumber,
-        SmsId $smsId
-    ): RequestServiceSms {
-        $sms = self::createSms($smsMessage, $smsPhoneNumber, $smsId);
-        return new RequestServiceSms($sms);
+    ): SendSmsRequest {
+        return new SendSmsRequest(new PhoneNumber($smsPhoneNumber), new MessageText($smsMessage));
     }
 }

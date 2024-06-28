@@ -10,16 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
 use Sms\Domain\Model\SmsModel\MessageText;
 use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
-use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 
 use function Safe\file_get_contents;
 use function Safe\json_decode;
 use function Safe\json_encode;
 
-class SmsApiTest extends TestCase
+class OvhSmsSenderTest extends TestCase
 {
     private const MESSAGE = "André Goutaire from Campus26 has just sent you a document to sign.";
     private const PHONE_NUMBER = ['+33123456789'];
@@ -56,12 +54,12 @@ class SmsApiTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
 
-        $response = $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber(self::PHONE_NUMBER)
-        )));
+        $response = $smsApi->sendSms(
+            new PhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
     }
@@ -76,16 +74,16 @@ class SmsApiTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
 
         $this->expectException(SmsApiBadReceiversException::class);
         $this->expectExceptionMessage(self::ERROR_RECEIVERS);
 
 
-        $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber(self::PHONE_NUMBER)
-        )));
+        $smsApi->sendSms(
+            new PhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
     }
 
 
@@ -107,7 +105,7 @@ class SmsApiTest extends TestCase
 
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
-        $smsApi = new SendSms($client,);
+        $smsApi = new OvhSmsSender($client,);
 
         $content = $smsApi->getContent($this->messageText, $this->phoneNumber);
         $expectedOrder = [
@@ -141,11 +139,11 @@ class SmsApiTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
-        $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber(self::PHONE_NUMBER)
-        )));
+        $smsApi = new OvhSmsSender($client);
+        $smsApi->sendSms(
+            new PhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
 
         $jsonString = file_get_contents(__DIR__ . self::LINK);
         /** @var \stdClass */

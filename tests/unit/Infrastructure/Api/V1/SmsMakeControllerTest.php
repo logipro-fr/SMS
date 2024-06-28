@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use Sms\Infrastructure\Api\V1\SmsMakeController;
 use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +57,7 @@ class SmsMakeControllerTest extends WebTestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
         $repository = new SmsRepositoryMemory();
-        $sendSms = new SendSms($client);
+        $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
             "/api/V1/Sms/",
@@ -93,7 +93,7 @@ class SmsMakeControllerTest extends WebTestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
         $repository = new SmsRepositoryMemory();
-        $sendSms = new SendSms($client);
+        $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
             "/api/V1/Sms/",
@@ -133,7 +133,7 @@ class SmsMakeControllerTest extends WebTestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
         $repository = new SmsRepositoryMemory();
-        $sendSms = new SendSms($client);
+        $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
             "/api/V1/Sms/",

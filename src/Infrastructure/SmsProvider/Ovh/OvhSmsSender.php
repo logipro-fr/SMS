@@ -5,9 +5,12 @@ namespace Sms\Infrastructure\SmsProvider\Ovh;
 use GuzzleHttp\Client;
 use Ovh\Api;
 use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
+use Sms\Domain\Model\SmsModel\MessageText;
+use Sms\Domain\Model\SmsModel\PhoneNumber;
 use Sms\Domain\Model\SmsModel\StatusMessage;
+use Sms\Infrastructure\SmsProvider\SenderProviderInterface;
 
-class SendSms
+class OvhSmsSender implements SenderProviderInterface
 {
     private const VALIDITYPERIOD = 2880;
     private const NOSTOPCLAUSE = false;
@@ -31,11 +34,11 @@ class SendSms
     }
 
 
-    public function sendSms(RequestSms $requestSms): StatusMessage
+    public function sendSms(PhoneNumber $phoneNumber, MessageText $message): StatusMessage
     {
         $content = $this->getContent(
-            $requestSms->sms->getSmsMessage(),
-            $requestSms->sms->getSmsPhoneNumber(),
+            $message,
+            $phoneNumber->getPhoneNumber(),
         );
 
         $key = new OvhKey();

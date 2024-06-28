@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
 use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Sms\Domain\Model\SmsModel\MessageText;
 use Sms\Domain\Model\SmsModel\PhoneNumber;
 use Sms\Domain\Model\SmsModel\Sms;
@@ -29,12 +29,12 @@ class SmsIntegrationTest extends TestCase
     {
         $client = new Client();
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
 
-        $response = $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber([$_ENV['PHONE_NUMBER']])
-        )));
+        $response = $smsApi->sendSms(
+            new PhoneNumber([$_ENV['PHONE_NUMBER']]),
+            new MessageText(self::MESSAGE)
+        );
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
     }
@@ -43,16 +43,11 @@ class SmsIntegrationTest extends TestCase
     public function testIntegrationSenderSmsBadReceiver(): void
     {
         $httpClient = new Client();
-        $sender = new SendSms($httpClient);
-
-        $request = new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber([])
-        ));
+        $sender = new OvhSmsSender($httpClient);
 
         $this->expectException(SmsApiBadReceiversException::class);
         $this->expectExceptionMessage("Error sending message, check recipient!");
 
-        $sender->sendSms($request);
+        $sender->sendSms(new PhoneNumber([]), new MessageText(self::MESSAGE));
     }
 }

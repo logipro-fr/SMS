@@ -3,13 +3,14 @@
 namespace Sms\Infrastructure\Api\V1;
 
 use Exception;
-use Sms\Application\Services\Sms\RequestServiceSms;
-use Sms\Application\Services\Sms\SmsService;
-use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
-use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Sms\Application\Services\Sms\SendSmsRequest;
+use Sms\Application\Services\Sms\SendSms;
+use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
+use Sms\Domain\Model\Sms\SmsId;
+use Sms\Domain\Model\Sms\SmsRepositoryInterface;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ use function Safe\json_decode;
 class SmsMakeController
 {
     private const SENDING_CODE = 200;
-    public function __construct(private SmsRepositoryMemory $repository, private SendSms $sendSms)
+    public function __construct(private SmsRepositoryInterface $repository, private OvhSmsSender $sendSms)
     {
     }
     #[Route('api/v1/sms/send', 'SendSms', methods: ['POST'])]
@@ -28,7 +29,7 @@ class SmsMakeController
     {
         $request = $this->buildMakeSmsRequest($request);
 
-        $sms = new SmsService($this->repository, $this->sendSms);
+        $sms = new SendSms($this->repository, $this->sendSms);
 
         try {
             $sms->execute($request);
@@ -56,18 +57,16 @@ class SmsMakeController
         );
     }
 
-    private function buildMakeSmsRequest(Request $request): RequestServiceSms
+    private function buildMakeSmsRequest(Request $request): SendSmsRequest
     {
         $requestContent = $request->getContent();
         $data = json_decode($requestContent, true);
         /** @var array<string> $data*/
         $message = $data['messageText'];
-        /** @var array<string> $phoneNumber
-         * @var array<string> $data
-        */
+        /** @var string $phoneNumber */
         $phoneNumber =  $data['phoneNumber'];
         $sms = FactorySmsBuilder::createsms($message, $phoneNumber, new SmsId());
 
-        return new RequestServiceSms($sms);
+        return new SendSmsRequest(new MobilePhoneNumber($phoneNumber), new MessageText($message));
     }
 }

@@ -4,8 +4,8 @@
                   xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="Sms\Domain\Model\SmsModel\Sms" table="sms"
-            repository-class="Sms\Infrastructure\Persistence\SmsRepositoryDoctrine">
+    <entity name="Sms\Domain\Model\Sms\Sms" table="sms"
+            repository-class="Sms\Infrastructure\Persistence\Sms\SmsRepositoryDoctrine">
         <id name="id" type="sms_id" column="sms_id">
             <generator strategy="NONE"/>
         </id>

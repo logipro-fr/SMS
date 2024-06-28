@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "52e00d18fdcf3114d3a1793ddb580645",
+    "content-hash": "67de68ee3e561f2f84fd23b0a94b605c",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -1847,6 +1847,69 @@
                 "source": "https://github.com/ovh/php-ovh/tree/v3.3.0"
             },
             "time": "2023-10-20T15:21:31+00:00"
+        },
+        {
+            "name": "phariscope/safephp",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phariscope/SafePHP.git",
+                "reference": "83bb0abc6a6de5a66c54e602dc13f13beb1fbd10"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phariscope/SafePHP/zipball/83bb0abc6a6de5a66c54e602dc13f13beb1fbd10",
+                "reference": "83bb0abc6a6de5a66c54e602dc13f13beb1fbd10",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "infection/extension-installer": "0.1.2",
+                "infection/infection": "^0.27",
+                "phpstan/phpdoc-parser": "^1.20",
+                "phpstan/phpstan": "1.10.15",
+                "phpunit/phpunit": "^10",
+                "squizlabs/php_codesniffer": "3.*"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/hash.php",
+                    "src/val.php",
+                    "src/getenv.php"
+                ],
+                "classmap": [
+                    "src/Exceptions/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Frédéric Royet",
+                    "email": "frederic.royet@logipro.com",
+                    "homepage": "https://www.linkedin.com/in/frederic-royet-42568566/",
+                    "role": "Project Founder"
+                }
+            ],
+            "description": "A PHP library complementary to SafePHP containing currently unsupported functions.",
+            "homepage": "https://github.com/phariscope/SafePHP",
+            "keywords": [
+                "Safe PHP",
+                "boolval",
+                "floatval",
+                "intval",
+                "strval"
+            ],
+            "support": {
+                "issues": "https://github.com/phariscope/SafePHP/issues",
+                "source": "https://github.com/phariscope/SafePHP/tree/1.0.2"
+            },
+            "time": "2023-11-26T05:31:17+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",

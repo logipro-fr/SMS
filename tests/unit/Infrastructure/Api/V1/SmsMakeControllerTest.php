@@ -1,6 +1,6 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Api\V1;
+namespace Sms\Tests\Infrastructure\Api\V1;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -9,8 +9,8 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use Sms\Infrastructure\Api\V1\SmsMakeController;
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
+use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +38,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => ["+33123456789"],
+                "phoneNumber" => "+33623456789",
             ]),
         );
         /** @var string */
@@ -52,12 +52,12 @@ class SmsMakeControllerTest extends WebTestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33123456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33623456789"]]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
         $repository = new SmsRepositoryMemory();
-        $sendSms = new SendSms($client);
+        $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
             "/api/V1/Sms/",
@@ -68,7 +68,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => ["+33123456789"],
+                "phoneNumber" => "+33623456789",
             ]),
         );
         $response = $controller->execute($request);
@@ -88,12 +88,12 @@ class SmsMakeControllerTest extends WebTestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33123456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33623456789"]]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
         $repository = new SmsRepositoryMemory();
-        $sendSms = new SendSms($client);
+        $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
             "/api/V1/Sms/",
@@ -104,7 +104,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => ["+33123456789"],
+                "phoneNumber" => "+33623456789",
             ]),
         );
 
@@ -133,7 +133,7 @@ class SmsMakeControllerTest extends WebTestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
         $repository = new SmsRepositoryMemory();
-        $sendSms = new SendSms($client);
+        $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
             "/api/V1/Sms/",
@@ -144,7 +144,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
             "messageText" => "test",
-            "phoneNumber" => ["+33123456789"],
+            "phoneNumber" => "+33623456789",
             ]),
         );
 

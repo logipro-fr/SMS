@@ -17,5 +17,5 @@ doctrine:
         is_bundle: false
         type: xml
         dir: '%kernel.project_dir%/src/Infrastructure/Persistence/Doctrine/Mapping'
-        prefix: 'Sms\Domain\Model\SmsModel'
+        prefix: 'Sms\Domain\Model\Sms'
         alias: Sms

@@ -1,29 +1,26 @@
 <?php
 
-namespace Sms\Tests;
+namespace Sms\Tests\Infrastructure\SmsProvider\Ovh;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Infrastructure\SmsProvider\Ovh\SendSms;
-use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
-use Sms\Tests\BaseTestCase;
+use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
+use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 
 use function Safe\file_get_contents;
 use function Safe\json_decode;
 use function Safe\json_encode;
 
-class SmsApiTest extends TestCase
+class OvhSmsSenderTest extends TestCase
 {
     private const MESSAGE = "André Goutaire from Campus26 has just sent you a document to sign.";
-    private const PHONE_NUMBER = ['+33123456789'];
+    private const PHONE_NUMBER = '+33623456789';
     private const RESPONSE_OBJECT = "responseobject.json";
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
@@ -31,10 +28,7 @@ class SmsApiTest extends TestCase
     private const ERROR_RECEIVERS = "Error sending message, check recipient!";
 
     private string $messageText;
-    /**
-    * @var string[]
-    */
-    private array $phoneNumber = [];
+    private string $phoneNumber;
 
 
     protected function setUp(): void
@@ -44,28 +38,25 @@ class SmsApiTest extends TestCase
         $this->phoneNumber = self::PHONE_NUMBER;
         $this->messageText = self::MESSAGE;
         $dotenv = new Dotenv();
-        $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env.local');
+        $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
     }
-
-
-
 
     public function testSendSms(): void
     {
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ["+33123456789"]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ["+33623456789"]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
 
-        $response = $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber(self::PHONE_NUMBER)
-        )));
+        $response = $smsApi->sendSms(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
     }
@@ -75,25 +66,22 @@ class SmsApiTest extends TestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => []])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ""])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
+        $smsApi = new OvhSmsSender($client);
 
         $this->expectException(SmsApiBadReceiversException::class);
         $this->expectExceptionMessage(self::ERROR_RECEIVERS);
 
 
-        $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber(self::PHONE_NUMBER)
-        )));
+        $smsApi->sendSms(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
     }
-
-
-
 
     public function testOrderContent(): void
     {
@@ -111,7 +99,7 @@ class SmsApiTest extends TestCase
 
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
-        $smsApi = new SendSms($client,);
+        $smsApi = new OvhSmsSender($client,);
 
         $content = $smsApi->getContent($this->messageText, $this->phoneNumber);
         $expectedOrder = [
@@ -131,33 +119,29 @@ class SmsApiTest extends TestCase
         $this->assertSame($expectedOrder, $actualOrder);
     }
 
-
-
-
-
     public function testRequestPhoneNumber(): void
     {
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33123456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ["+33623456789"]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $smsApi = new SendSms($client);
-        $smsApi->sendSms(new RequestSms(new Sms(
-            new MessageText(self::MESSAGE),
-            new PhoneNumber(self::PHONE_NUMBER)
-        )));
+        $smsApi = new OvhSmsSender($client);
+        $smsApi->sendSms(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
 
         $jsonString = file_get_contents(__DIR__ . self::LINK);
         /** @var \stdClass */
         $jsonDecode = json_decode($jsonString);
 
-        $validReceivers = $jsonDecode->validReceivers[0];
+        $validReceivers = $jsonDecode->validReceivers;
 
-        $this->assertSame(self::PHONE_NUMBER, $validReceivers);
+        $this->assertSame([[self::PHONE_NUMBER]], $validReceivers);
     }
 
     public function testGetApiKey(): void

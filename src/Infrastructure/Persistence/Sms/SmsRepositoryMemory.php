@@ -1,10 +1,10 @@
 <?php
 
-namespace Sms\Infrastructure\Persistence;
+namespace Sms\Infrastructure\Persistence\Sms;
 
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Domain\Model\SmsModel\SmsRepositoryInterface;
+use Sms\Domain\Model\Sms\Sms;
+use Sms\Domain\Model\Sms\SmsId;
+use Sms\Domain\Model\Sms\SmsRepositoryInterface;
 use Sms\Infrastructure\Persistence\Sms\SmsNotFoundException;
 
 class SmsRepositoryMemory implements SmsRepositoryInterface

@@ -1,9 +1,9 @@
 <?php
 
-namespace Sms\Domain\Model\SmsModel;
+namespace Sms\Domain\Model\Sms;
 
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Domain\Model\SmsModel\SmsId;
+use Sms\Domain\Model\Sms\Sms;
+use Sms\Domain\Model\Sms\SmsId;
 
 interface SmsRepositoryInterface
 {

@@ -6,13 +6,15 @@
 
 ```console
 git clone git@github.com:logipro-fr/SMS.git
+cd SMS
+./install
 ```
 
 # To Contribute to Sms
 
 ## Requirements
 
-* docker
+* docker >=24.0.6
 * git
 
 
@@ -29,7 +31,7 @@ Using Test-Driven Development (TDD) principles (thanks to Kent Beck and others),
 ```console
 ./start
 ```
-have a local look at http://127.0.0.1:33080/ in your navigator
+have a local look at http://127.0.0.1:11302/ in your navigator
 
 ```console
 ./stop
@@ -41,8 +43,8 @@ Some indicators that seem interesting.
 
 * phpcs PSR12
 * phpstan level 9
-* coverage >=100%
-* infection MSI >=100%
+* 100% coverage obtained naturally thanks to the “classic school” TDD approach
+* we hunt mutants with “Infection”. We aim for an MSI score of 100% for “panache”
 
 Quick check with:
 ```console

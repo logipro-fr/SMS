@@ -20,16 +20,15 @@ services:
   sms.repository:
     public: true
     autowire: true
-    class: Sms\Infrastructure\Persistence\SmsRepositoryMemory
+    class: Sms\Infrastructure\Persistence\Sms\SmsRepositoryDoctrine
 
   sms.sendSms:
     public: true
     autowire: true
-    class: Sms\Infrastructure\SmsProvider\Ovh\SendSms
-   
+    class: Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender
 
-  Sms\Infrastructure\Persistence\SmsRepositoryMemory: "@sms.repository"
-  Sms\Infrastructure\SmsProvider\Ovh\SendSms: "@sms.sendSms"
+  Sms\Domain\Model\Sms\SmsRepositoryInterface: "@sms.repository"
+  Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender: "@sms.sendSms"
   
   Sms\Infrastructure\Api\V1\:
     resource: "../src/Infrastructure/Api/V1/"

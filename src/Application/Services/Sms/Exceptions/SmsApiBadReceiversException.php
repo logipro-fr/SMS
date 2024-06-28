@@ -1,6 +1,6 @@
 <?php
 
-namespace Sms\Application\Services\Sms\Exception;
+namespace Sms\Application\Services\Sms\Exceptions;
 
 class SmsApiBadReceiversException extends \Exception
 {

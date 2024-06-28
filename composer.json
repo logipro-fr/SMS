@@ -26,7 +26,8 @@
         "symfony/console": "^7.1",
         "symfony/http-foundation": "^7.1",
         "nelmio/api-doc-bundle": "^4.26",
-        "nelmio/cors-bundle": "^2.4"
+        "nelmio/cors-bundle": "^2.4",
+        "phariscope/safephp": "^1.0"
     },
     "require-dev": {
         "infection/extension-installer": "0.1.2",
@@ -45,8 +46,8 @@
     },
     "autoload-dev": {
         "psr-4" : {
-            "Sms\\tests\\" : "tests/unit",
-            "Sms\\tests\\Integration\\" : "tests/integration"
+            "Sms\\Tests\\" : "tests/unit",
+            "Sms\\Tests\\Integration\\" : "tests/integration"
         }
     },
     "config": {

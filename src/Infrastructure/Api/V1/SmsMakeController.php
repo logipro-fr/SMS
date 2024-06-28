@@ -47,9 +47,10 @@ class SmsMakeController
         return new JsonResponse(
             [
                 'success' => true,
-                'ErrorCode' => "",
+                'statusCode' => "",
                 'data' => [
                     'statusMessage' => $response->statusMessage,
+                    'smsId' => $response->smsId->getId()
                 ],
                 'message' => "",
             ],

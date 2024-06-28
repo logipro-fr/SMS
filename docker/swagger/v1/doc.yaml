@@ -26,7 +26,7 @@ paths:
                 phoneNumber:
                   type: string
                   description: The phone number to which the SMS was sent
-                  example: ['+1234567890']
+                  example: "+33601020304"
       responses:
         '200':
           description: SMS successfully sent
@@ -39,22 +39,22 @@ paths:
                     type: boolean
                     description: Indicates whether the SMS send was successful
                     example: true
-                  statusMessage:
+                  statusCode:
                     type: string
-                    description: Message associated with the response
-                    example: Message sent successfully
+                    description: Name of the exception class if any error occurs
+                    example:
                   data:
                     type: object
                     description: Details about the sent SMS
                     properties:
-                      messageText:
+                      statusMessage:
                         type: string
-                        description: The text of the sent SMS
-                        example: Hello, this is a test message.
-                      phoneNumber:
+                        description: A status message
+                        example: Message sent successfully
+                      smsId:
                         type: string
-                        description: The phone number to which the SMS was sent
-                        example: ['+1234567890']
+                        description: Sms identity
+                        example: sms_123456780
         '402':
           description: Payment required
           content:
@@ -66,23 +66,10 @@ paths:
                     type: boolean
                     description: Indicates whether the SMS send was successful
                     example: false
-                  errorCode:
+                  statusCode:
                     type: string
                     description: Name of the exception class if any error occurs
                     example: SmsApiBadResponseException
-                  statusMessage:
-                    type: string
-                    description: Message associated with the response
-                    example: Invalid credentials, payment required!
                   data:
                     type: object
-                    description: Additional information about the error
-                    properties:
-                      messageText:
-                        type: string
-                        description: The text of the SMS that failed to send
-                        example: Hello, this is a test message.
-                      phoneNumber:
-                        type: string
-                        description: The phone number to which the SMS failed to be sent
-                        example: ['+1234567890']
+                    example:

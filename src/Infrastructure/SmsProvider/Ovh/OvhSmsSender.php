@@ -4,11 +4,11 @@ namespace Sms\Infrastructure\SmsProvider\Ovh;
 
 use GuzzleHttp\Client;
 use Ovh\Api;
-use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
+use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
 use Sms\Domain\Model\Sms\MessageText;
-use Sms\Domain\Model\Sms\PhoneNumber;
 use Sms\Domain\Model\Sms\StatusMessage;
 use Sms\Application\Services\Sms\SenderProviderInterface;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 
 class OvhSmsSender implements SenderProviderInterface
 {
@@ -34,11 +34,11 @@ class OvhSmsSender implements SenderProviderInterface
     }
 
 
-    public function sendSms(PhoneNumber $phoneNumber, MessageText $message): StatusMessage
+    public function sendSms(MobilePhoneNumber $phoneNumber, MessageText $message): StatusMessage
     {
         $content = $this->getContent(
             $message,
-            $phoneNumber->getPhoneNumber(),
+            $phoneNumber->getNumber(),
         );
 
         $key = new OvhKey();
@@ -48,7 +48,7 @@ class OvhSmsSender implements SenderProviderInterface
             $key->getApplicationSecret(),
             'ovh-eu',
             $key->getConsumerKey(),
-            $this -> http_client,
+            $this->http_client,
         );
 
         $smsServices = $conn->get('/sms/');
@@ -56,18 +56,14 @@ class OvhSmsSender implements SenderProviderInterface
 
         if ($response['validReceivers']) {
             return new StatusMessage(self::SENDING_MESSAGE);
-        } else {
-            throw new SmsApiBadReceiversException(self::ERROR_RECEIVERS);
         }
+        throw new SmsApiBadReceiversException(self::ERROR_RECEIVERS);
     }
 
-
     /**
-    * @param string $messagetext
-    * @param array<string> $phoneNumber
-    * @return array<string, array<string>|bool|int|string>
-    */
-    public function getContent(string $messagetext, array $phoneNumber): array
+     * @return array<string, array<string>|bool|int|string>
+     */
+    public function getContent(string $messagetext, string $phoneNumber): array
     {
         return [
             "charset" => self::CHARSET,
@@ -76,7 +72,7 @@ class OvhSmsSender implements SenderProviderInterface
             "message" => $messagetext,
             "noStopClause" => self::NOSTOPCLAUSE,
             "priority" => self::PRIORITY,
-            "receivers" => $phoneNumber,
+            "receivers" => [$phoneNumber],
             "senderForResponse" => self::SENDERFORRESPONSE,
             "validityPeriod" => self::VALIDITYPERIOD
         ];

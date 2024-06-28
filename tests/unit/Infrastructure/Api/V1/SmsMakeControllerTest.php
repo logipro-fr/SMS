@@ -38,7 +38,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => ["+33123456789"],
+                "phoneNumber" => "+33623456789",
             ]),
         );
         /** @var string */
@@ -52,7 +52,7 @@ class SmsMakeControllerTest extends WebTestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33123456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33623456789"]]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
@@ -68,7 +68,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => ["+33123456789"],
+                "phoneNumber" => "+33623456789",
             ]),
         );
         $response = $controller->execute($request);
@@ -88,7 +88,7 @@ class SmsMakeControllerTest extends WebTestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33123456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33623456789"]]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
@@ -104,7 +104,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => ["+33123456789"],
+                "phoneNumber" => "+33623456789",
             ]),
         );
 
@@ -144,7 +144,7 @@ class SmsMakeControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
             "messageText" => "test",
-            "phoneNumber" => ["+33123456789"],
+            "phoneNumber" => "+33623456789",
             ]),
         );
 

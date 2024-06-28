@@ -11,7 +11,7 @@ class Sms
     public DateTimeImmutable $createdAt;
     public function __construct(
         private MessageText $messagetext,
-        private PhoneNumber $phoneNumber,
+        private MobilePhoneNumber $phoneNumber,
         private SmsId $id = new SmsId()
     ) {
         $this->messagetext = $messagetext;
@@ -25,10 +25,9 @@ class Sms
         return ($this->messagetext->getMessagetext());
     }
 
-    /** @return array<string> */
-    public function getSmsPhoneNumber(): array
+    public function getSmsPhoneNumber(): string
     {
-        return ($this->phoneNumber->getPhoneNumber());
+        return $this->phoneNumber->getNumber();
     }
 
 

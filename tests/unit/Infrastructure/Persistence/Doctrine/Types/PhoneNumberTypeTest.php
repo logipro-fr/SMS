@@ -5,7 +5,7 @@ namespace Sms\Tests\Infrastructure\Persistence\Doctrine\Types;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use PHPUnit\Framework\TestCase;
 use Sms\Domain\Model\Sms\MessageText;
-use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Domain\Model\Sms\Sms;
 use Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType;
 
@@ -22,7 +22,7 @@ class PhoneNUmberTypeTest extends TestCase
         $dbValue = $type->convertToDatabaseValue(
             $sms = new Sms(
                 new MessageText("ceci est un message !"),
-                new PhoneNumber(["+33123456789"])
+                new MobilePhoneNumber("+33623456789")
             ),
             new SqlitePlatform()
         );

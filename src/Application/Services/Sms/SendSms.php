@@ -10,7 +10,7 @@ use Sms\Domain\Model\Sms\StatusMessage;
 
 class SendSms
 {
-    public SendSmsResponse $response;
+    private SendSmsResponse $response;
 
     public function __construct(private SmsRepositoryInterface $repository, private SenderProviderInterface $sendSms)
     {

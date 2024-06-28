@@ -25,8 +25,7 @@ class SendSimpleSmsContext implements Context
 {
     private SendSmsResponse $response;
     private string $message;
-    /** @var array<string> $phoneNumber */
-    private array $phoneNumber;
+    private string $phoneNumber;
     private SendSmsRequest $request;
     private const RESPONSE_OBJECT = "responseobject.json";
     private const SENDING_CODE = 200;
@@ -41,20 +40,18 @@ class SendSimpleSmsContext implements Context
 
      /**
      * @Given the text to send :messageText
-     * @param string $messageText
      */
-    public function theTextToSend($messageText): void
+    public function theTextToSend(string $messageText): void
     {
         $this->message = $messageText;
     }
 
     /**
      * @Given the phone number is :phoneNumber
-     * @param array<string> $phoneNumber
      */
-    public function thePhoneNumberIs($phoneNumber): void
+    public function thePhoneNumberIs(string $phoneNumber): void
     {
-        $this->phoneNumber = ['$phoneNumber'];
+        $this->phoneNumber = $phoneNumber;
     }
 
     /**
@@ -67,7 +64,7 @@ class SendSimpleSmsContext implements Context
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], Utils::streamFor(json_encode([self::RESPONSE_OBJECT]))),
-            new Response(self::SENDING_CODE, [], Utils::streamFor(json_encode(["validReceivers" => ["+33123456789"]]))),
+            new Response(self::SENDING_CODE, [], Utils::streamFor(json_encode(["validReceivers" => ["+33623456789"]]))),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);

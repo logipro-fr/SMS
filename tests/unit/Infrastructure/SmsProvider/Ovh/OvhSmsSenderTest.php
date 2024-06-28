@@ -7,9 +7,9 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
+use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
 use Sms\Domain\Model\Sms\MessageText;
-use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -20,7 +20,7 @@ use function Safe\json_encode;
 class OvhSmsSenderTest extends TestCase
 {
     private const MESSAGE = "André Goutaire from Campus26 has just sent you a document to sign.";
-    private const PHONE_NUMBER = ['+33123456789'];
+    private const PHONE_NUMBER = '+33623456789';
     private const RESPONSE_OBJECT = "responseobject.json";
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
@@ -28,10 +28,7 @@ class OvhSmsSenderTest extends TestCase
     private const ERROR_RECEIVERS = "Error sending message, check recipient!";
 
     private string $messageText;
-    /**
-    * @var string[]
-    */
-    private array $phoneNumber = [];
+    private string $phoneNumber;
 
 
     protected function setUp(): void
@@ -49,7 +46,7 @@ class OvhSmsSenderTest extends TestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ["+33123456789"]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ["+33623456789"]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
@@ -57,7 +54,7 @@ class OvhSmsSenderTest extends TestCase
         $smsApi = new OvhSmsSender($client);
 
         $response = $smsApi->sendSms(
-            new PhoneNumber(self::PHONE_NUMBER),
+            new MobilePhoneNumber(self::PHONE_NUMBER),
             new MessageText(self::MESSAGE)
         );
 
@@ -69,7 +66,7 @@ class OvhSmsSenderTest extends TestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => []])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ""])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
@@ -81,13 +78,10 @@ class OvhSmsSenderTest extends TestCase
 
 
         $smsApi->sendSms(
-            new PhoneNumber(self::PHONE_NUMBER),
+            new MobilePhoneNumber(self::PHONE_NUMBER),
             new MessageText(self::MESSAGE)
         );
     }
-
-
-
 
     public function testOrderContent(): void
     {
@@ -125,23 +119,19 @@ class OvhSmsSenderTest extends TestCase
         $this->assertSame($expectedOrder, $actualOrder);
     }
 
-
-
-
-
     public function testRequestPhoneNumber(): void
     {
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33123456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ["+33623456789"]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
         $smsApi = new OvhSmsSender($client);
         $smsApi->sendSms(
-            new PhoneNumber(self::PHONE_NUMBER),
+            new MobilePhoneNumber(self::PHONE_NUMBER),
             new MessageText(self::MESSAGE)
         );
 
@@ -149,9 +139,9 @@ class OvhSmsSenderTest extends TestCase
         /** @var \stdClass */
         $jsonDecode = json_decode($jsonString);
 
-        $validReceivers = $jsonDecode->validReceivers[0];
+        $validReceivers = $jsonDecode->validReceivers;
 
-        $this->assertSame(self::PHONE_NUMBER, $validReceivers);
+        $this->assertSame([[self::PHONE_NUMBER]], $validReceivers);
     }
 
     public function testGetApiKey(): void

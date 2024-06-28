@@ -4,6 +4,7 @@ namespace Sms\Tests\Infrastructure\Persistence\Sms;
 
 use PHPUnit\Framework\TestCase;
 use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Domain\Model\Sms\PhoneNumber;
 use Sms\Domain\Model\Sms\Sms;
 use Sms\Domain\Model\Sms\SmsId;
@@ -26,8 +27,8 @@ abstract class SmsRepositoryTestBase extends TestCase
         $id = new SmsId("id");
         $id2 = new SmsId("id2");
 
-        $sms = new Sms(new MessageText("test"), new PhoneNumber(["+33123456789"]), $id);
-        $sms2 = new Sms(new MessageText("test2"), new PhoneNumber(["+33123456789"]), $id2);
+        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber("+33623456789"), $id);
+        $sms2 = new Sms(new MessageText("test2"), new MobilePhoneNumber("+33623456789"), $id2);
 
         $this->repository->add($sms);
         $found = $this->repository->findById($id);
@@ -43,7 +44,7 @@ abstract class SmsRepositoryTestBase extends TestCase
     public function testFindByIdException(): void
     {
         $id = new SmsId("id");
-        $sms = new Sms(new MessageText("test"), new PhoneNumber(["+33123456789"]), $id);
+        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber("+33623456789"), $id);
         $this->repository->add($sms);
 
         $this->expectException(SmsNotFoundException::class);

@@ -6,23 +6,21 @@ use Sms\Application\Services\Sms\SendSmsRequest;
 
 class FactorySmsBuilder
 {
-    /** @param array<string> $smsPhoneNumber */
     public static function createSms(
         string $smsMessage,
-        array $smsPhoneNumber,
+        string $smsPhoneNumber,
         SmsId $smsId = new SmsId()
     ): Sms {
         $messageText = new MessageText($smsMessage);
-        $phoneNumber = new PhoneNumber($smsPhoneNumber);
+        $phoneNumber = new MobilePhoneNumber($smsPhoneNumber);
 
         return new Sms($messageText, $phoneNumber, $smsId);
     }
 
-    /** @param array<string> $smsPhoneNumber */
     public static function createRequestServiceSms(
         string $smsMessage,
-        array $smsPhoneNumber,
+        string $smsPhoneNumber,
     ): SendSmsRequest {
-        return new SendSmsRequest(new PhoneNumber($smsPhoneNumber), new MessageText($smsMessage));
+        return new SendSmsRequest(new MobilePhoneNumber($smsPhoneNumber), new MessageText($smsMessage));
     }
 }

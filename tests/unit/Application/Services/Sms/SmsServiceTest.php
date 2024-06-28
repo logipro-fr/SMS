@@ -32,7 +32,7 @@ class SmsServiceTest extends TestCase
             new Response(
                 self::SENDING_CODE,
                 [],
-                Utils::streamFor(json_encode(["validReceivers" => ["+33123456789"]]))
+                Utils::streamFor(json_encode(["validReceivers" => ["+33623456789"]]))
             ),
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -42,7 +42,7 @@ class SmsServiceTest extends TestCase
         $repository = new SmsRepositoryMemory();
         $service = new SendSms($repository, $smsApi);
 
-        $requestSms = FactorySmsBuilder::createRequestServiceSms('test', ['+33123456789']);
+        $requestSms = FactorySmsBuilder::createRequestServiceSms('test', '+33623456789');
         $service->execute($requestSms);
         $response1 = $service->getResponse();
 
@@ -63,7 +63,7 @@ class SmsServiceTest extends TestCase
             new Response(
                 self::SENDING_CODE,
                 [],
-                Utils::streamFor(json_encode(["validReceivers" => ["+33123456789"]]))
+                Utils::streamFor(json_encode(["validReceivers" => ["+33623456789"]]))
             ),
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -73,7 +73,7 @@ class SmsServiceTest extends TestCase
         $repository = new SmsRepositoryMemory();
         $sut = new SendSms($repository, $sendSmsProvider);
 
-        $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', ['+33123456789']);
+        $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', '+33623456789');
 
         $sut->execute($requestSms);
         $response = $sut->getResponse();
@@ -82,6 +82,6 @@ class SmsServiceTest extends TestCase
         $this->assertEquals(self::SENDING_MESSAGE, $response->statusMessage);
         $this->assertNotNull($savedSms);
         $this->assertEquals(new MessageText('Test'), $savedSms->getSmsMessage());
-        $this->assertEquals(['+33123456789'], $savedSms->getSmsPhoneNumber());
+        $this->assertEquals('+33623456789', $savedSms->getSmsPhoneNumber());
     }
 }

@@ -3,6 +3,8 @@ info:
   title: Sms API
   version: 1.0.0
 servers:
+  - url: /api/v1
+    description: API routes
   - url: http://172.17.0.1:11380/api/v1
     description: Local server
 paths:

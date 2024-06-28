@@ -4,7 +4,7 @@ doctrine:
     types:
       sms_id: Sms\Infrastructure\Persistence\Doctrine\Types\SmsIdType
       messagetext: Sms\Infrastructure\Persistence\Doctrine\Types\MessageTextType
-      phoneNumber: Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType
+      phonenumber: Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType
       
   orm:
     auto_generate_proxy_classes: true

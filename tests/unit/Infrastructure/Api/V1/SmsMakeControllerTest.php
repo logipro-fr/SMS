@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
+use function Safe\json_decode;
 use function Safe\json_encode;
 
 class SmsMakeControllerTest extends WebTestCase
@@ -75,10 +76,14 @@ class SmsMakeControllerTest extends WebTestCase
         /** @var string */
         $responseContent = $response->getContent();
 
-        $this->assertStringContainsString('"success":true', $responseContent);
-        $this->assertStringContainsString('"ErrorCode":', $responseContent);
-        $this->assertStringContainsString('"data":{"statusMessage":"Message sent successfully"}', $responseContent);
-        $this->assertStringContainsString('"message":"', $responseContent);
+        /** @var \stdClass */
+        $responseObject = json_decode($responseContent);
+
+        $this->assertTrue($responseObject->success);
+        $this->assertEquals("", $responseObject->message);
+        $this->assertEquals("", $responseObject->statusCode);
+        $this->assertEquals("Message sent successfully", $responseObject->data->statusMessage);
+        $this->assertStringStartsWith('sms_', $responseObject->data->smsId);
     }
 
 
@@ -112,17 +117,14 @@ class SmsMakeControllerTest extends WebTestCase
 
         $content = $response->getContent();
 
-        /** @var array<mixed> $responseData
-         * @var string  $content
-        */
-        $responseData = json_decode($content, true);
+        /** @var \stdClass */
+        $responseObject = json_decode(strval($content));
 
-        $this->assertTrue($responseData['success']);
-        $this->assertEquals("", $responseData['ErrorCode']);
-        $this->assertArrayHasKey('data', $responseData);
-        $this->assertArrayHasKey('statusMessage', $responseData['data']);
-        $this->assertEquals('Message sent successfully', $responseData['data']['statusMessage']);
-        $this->assertEquals('', $responseData['message']);
+        $this->assertTrue($responseObject->success);
+        $this->assertEquals("", $responseObject->message);
+        $this->assertEquals("", $responseObject->statusCode);
+        $this->assertEquals("Message sent successfully", $responseObject->data->statusMessage);
+        $this->assertStringStartsWith('sms_', $responseObject->data->smsId);
     }
 
     public function testSmsControllerCatchException(): void

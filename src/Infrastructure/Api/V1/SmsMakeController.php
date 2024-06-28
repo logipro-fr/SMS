@@ -5,12 +5,11 @@ namespace Sms\Infrastructure\Api\V1;
 use Exception;
 use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSms;
-use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
+use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\SmsId;
+use Sms\Domain\Model\Sms\SmsRepositoryInterface;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,7 @@ use function Safe\json_decode;
 class SmsMakeController
 {
     private const SENDING_CODE = 200;
-    public function __construct(private SmsRepositoryMemory $repository, private OvhSmsSender $sendSms)
+    public function __construct(private SmsRepositoryInterface $repository, private OvhSmsSender $sendSms)
     {
     }
     #[Route('api/v1/sms/send', 'SendSms', methods: ['POST'])]

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Api\V1;
+namespace Sms\Tests\Infrastructure\Api\V1;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -9,7 +9,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use Sms\Infrastructure\Api\V1\SmsMakeController;
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
+use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

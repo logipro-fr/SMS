@@ -1,8 +1,8 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Persistence;
+namespace Sms\Tests\Infrastructure\Persistence\Sms;
 
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
+use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
 
 class SmsRepositoryMemoryTest extends SmsRepositoryTestBase
 {

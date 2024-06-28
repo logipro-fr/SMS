@@ -5,10 +5,10 @@ namespace Sms\Infrastructure\SmsProvider\Ovh;
 use GuzzleHttp\Client;
 use Ovh\Api;
 use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\StatusMessage;
-use Sms\Infrastructure\SmsProvider\SenderProviderInterface;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\StatusMessage;
+use Sms\Application\Services\Sms\SenderProviderInterface;
 
 class OvhSmsSender implements SenderProviderInterface
 {

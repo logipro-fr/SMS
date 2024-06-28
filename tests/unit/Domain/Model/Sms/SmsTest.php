@@ -1,13 +1,11 @@
 <?php
 
-namespace Sms\Domain\Model\SmsModel;
+namespace Sms\Tests\Domain\Model\Sms;
 
 use PHPUnit\Framework\TestCase;
 use Safe\DateTimeImmutable;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Domain\Model\SmsModel\SmsId;
+use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\SmsId;
 
 class SmsTest extends TestCase
 {

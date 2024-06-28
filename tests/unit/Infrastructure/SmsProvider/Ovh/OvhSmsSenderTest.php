@@ -8,8 +8,8 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 

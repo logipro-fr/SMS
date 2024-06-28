@@ -1,6 +1,6 @@
 <?php
 
-namespace Sms\Domain\Model\SmsModel;
+namespace Sms\Domain\Model\Sms;
 
 use Sms\Application\Services\Sms\SendSmsRequest;
 

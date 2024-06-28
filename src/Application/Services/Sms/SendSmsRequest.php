@@ -2,10 +2,10 @@
 
 namespace Sms\Application\Services\Sms;
 
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
 
-class SendSmsRequest implements RequestInterface
+class SendSmsRequest
 {
     public function __construct(
         public readonly PhoneNumber $phoneNumber,

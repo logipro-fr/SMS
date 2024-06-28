@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
 use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\Sms;
 use Symfony\Component\Dotenv\Dotenv;
 
 class SmsIntegrationTest extends TestCase

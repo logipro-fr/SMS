@@ -1,6 +1,6 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Persistence;
+namespace Sms\Tests\Infrastructure\Persistence\Sms;
 
 use DoctrineTestingTools\DoctrineRepositoryTesterTrait;
 use Sms\Infrastructure\Persistence\Sms\SmsRepositoryDoctrine;

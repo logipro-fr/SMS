@@ -1,10 +1,10 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Persistence\Doctrine\Types;
+namespace Sms\Tests\Infrastructure\Persistence\Doctrine\Types;
 
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use PHPUnit\Framework\TestCase;
-use Sms\Domain\Model\SmsModel\SmsId;
+use Sms\Domain\Model\Sms\SmsId;
 use Sms\Infrastructure\Persistence\Doctrine\Types\SmsIdType;
 
 class SmsIdTypeTest extends TestCase

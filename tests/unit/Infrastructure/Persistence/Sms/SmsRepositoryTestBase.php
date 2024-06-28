@@ -1,13 +1,13 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Persistence;
+namespace Sms\Tests\Infrastructure\Persistence\Sms;
 
 use PHPUnit\Framework\TestCase;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Domain\Model\SmsModel\SmsRepositoryInterface;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\Sms;
+use Sms\Domain\Model\Sms\SmsId;
+use Sms\Domain\Model\Sms\SmsRepositoryInterface;
 use Sms\Infrastructure\Persistence\Sms\SmsNotFoundException;
 
 abstract class SmsRepositoryTestBase extends TestCase

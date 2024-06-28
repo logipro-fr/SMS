@@ -12,9 +12,9 @@ use PHPUnit\Framework\Assert;
 use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSmsResponse;
 use Sms\Application\Services\Sms\SendSms;
-use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
-use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
+use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\SmsId;
+use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\unit\Application\Services\Sms;
+namespace Sms\Tests\Application\Services\Sms;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -9,11 +9,9 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\SendSms;
-use Sms\Domain\Model\SmsModel\FactorySmsBuilder;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\SmsId;
-use Sms\Infrastructure\Persistence\SmsRepositoryMemory;
+use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 
 class SmsServiceTest extends TestCase

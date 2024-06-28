@@ -1,9 +1,9 @@
 <?php
 
-namespace Sms\Domain\Model\SmsModel;
+namespace Sms\Tests\Domain\Model\Sms;
 
 use PHPUnit\Framework\TestCase;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
+use Sms\Domain\Model\Sms\PhoneNumber;
 
 class PhoneNumberTest extends TestCase
 {

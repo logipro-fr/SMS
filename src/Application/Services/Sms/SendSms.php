@@ -2,18 +2,17 @@
 
 namespace Sms\Application\Services\Sms;
 
-use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSmsResponse;
-use Sms\Domain\Model\SmsModel\Sms;
-use Sms\Domain\Model\SmsModel\SmsRepositoryInterface;
-use Sms\Domain\Model\SmsModel\StatusMessage;
+use Sms\Domain\Model\Sms\Sms;
+use Sms\Domain\Model\Sms\SmsRepositoryInterface;
+use Sms\Domain\Model\Sms\StatusMessage;
 
 class SendSms
 {
     public SendSmsResponse $response;
 
-    public function __construct(private SmsRepositoryInterface $repository, private OvhSmsSender $sendSms)
+    public function __construct(private SmsRepositoryInterface $repository, private SenderProviderInterface $sendSms)
     {
         $this->repository = $repository;
         $this->sendSms = $sendSms;

@@ -45,8 +45,8 @@
     },
     "autoload-dev": {
         "psr-4" : {
-            "Sms\\tests\\" : "tests/unit",
-            "Sms\\tests\\Integration\\" : "tests/integration"
+            "Sms\\Tests\\" : "tests/unit",
+            "Sms\\Tests\\Integration\\" : "tests/integration"
         }
     },
     "config": {

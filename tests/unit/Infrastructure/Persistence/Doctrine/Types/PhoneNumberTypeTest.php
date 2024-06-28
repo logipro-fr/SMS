@@ -1,12 +1,12 @@
 <?php
 
-namespace Sms\tests\Infrastructure\Persistence\Doctrine\Types;
+namespace Sms\Tests\Infrastructure\Persistence\Doctrine\Types;
 
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use PHPUnit\Framework\TestCase;
-use Sms\Domain\Model\SmsModel\MessageText;
-use Sms\Domain\Model\SmsModel\PhoneNumber;
-use Sms\Domain\Model\SmsModel\Sms;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\Sms;
 use Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType;
 
 class PhoneNUmberTypeTest extends TestCase

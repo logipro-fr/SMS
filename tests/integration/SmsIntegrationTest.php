@@ -4,6 +4,7 @@ namespace Sms\Tests\Integration;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
+use Sms\Application\Services\Sms\Exception\SmsApiBadReceiversException;
 use Sms\Application\Services\Sms\Exception\SmsApiBadResponseException;
 use Sms\Application\Services\Sms\ResponseServiceSms;
 use Sms\Infrastructure\SmsProvider\Ovh\RequestSms;
@@ -29,32 +30,31 @@ class SmsIntegrationTest extends TestCase
 
     public function testIntegrationSenderSms(): void
     {
-        $httpClient = new Client();
-        $sender = new SendSms($httpClient);
+        $client = new Client();
 
-        $request = new RequestSms(new Sms(
+        $smsApi = new SendSms($client);
+
+        $response = $smsApi->sendSms(new RequestSms(new Sms(
             new MessageText(self::MESSAGE),
             new PhoneNumber([self::PHONE_NUMBER])
-        ));
-        $response = $sender->sendSms($request);
+        )));
 
-        $this->assertInstanceOf(ResponseServiceSms::class, $response);
-        $this->assertEquals(self::SENDING_MESSAGE, $response);
+        $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
     }
 
 
-    public function testIntegrationSenderSmsFailure(): void
+    public function testIntegrationSenderSmsBadReceiver(): void
     {
         $httpClient = new Client();
         $sender = new SendSms($httpClient);
 
         $request = new RequestSms(new Sms(
             new MessageText(self::MESSAGE),
-            new PhoneNumber([self::PHONE_NUMBER])
+            new PhoneNumber([])
         ));
 
-        $this->expectException(SmsApiBadResponseException::class);
-        $this->expectExceptionMessage("An error happened while sending the message");
+        $this->expectException(SmsApiBadReceiversException::class);
+        $this->expectExceptionMessage("Error sending message, check recipient!");
 
         $sender->sendSms($request);
     }

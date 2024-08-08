@@ -27,6 +27,8 @@ services:
       - "$PWD/..:/var/sms"
       - "$PWD/..:$PWD/.."
     working_dir: $PWD/..
+    env_file:
+      - secret.env
     depends_on:
       sms-mariadb:
         condition: service_started

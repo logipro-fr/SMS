@@ -1,6 +1,7 @@
 services:
   nginx-devlocal:
     container_name: "sms-nginx"
+    image: sms-nginx:latest
     build:
       context: ../.
       dockerfile: docker/nginx/Dockerfile
@@ -17,11 +18,10 @@ services:
 
   sms-php:
     container_name: "sms-php"
+    image: sms-php:latest
     build:
       context: ../.
       dockerfile: docker/php/Dockerfile
-      tags:
-        - latest
     user: 1000:1000
     volumes:
       - "$PWD/..:/var/sms"
@@ -39,8 +39,6 @@ services:
     build:
       context: .
       dockerfile: mariadb/Dockerfile
-      tags:
-        - latest
     restart: always
     volumes:
       - /home/debian/projet/sms-mariadb/_data:/var/lib/mysql

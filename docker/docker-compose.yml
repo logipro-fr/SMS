@@ -28,7 +28,7 @@ services:
       - "$PWD/..:$PWD/.."
     working_dir: $PWD/..
     env_file:
-      - secret.env
+      - ../secret.env
     depends_on:
       sms-mariadb:
         condition: service_started
@@ -51,7 +51,7 @@ services:
       - sms-network
   
   sms-phpmyadmin:
-    image: phpmyadmin
+    image: phpmyadmin:latest
     container_name: "sms-phpmyadmin"
     restart: always
     environment:

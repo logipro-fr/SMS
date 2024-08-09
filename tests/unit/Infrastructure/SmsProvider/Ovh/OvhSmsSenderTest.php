@@ -61,64 +61,6 @@ class OvhSmsSenderTest extends TestCase
         $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
     }
 
-    public function testSendSmsThrowsExceptionForInvalidReceivers(): void
-    {
-        $mock = new MockHandler([
-            new Response(self::SENDING_CODE, []),
-            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ""])),
-        ]);
-        $handlerStack = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handlerStack]);
-
-        $smsApi = new OvhSmsSender($client);
-
-        $this->expectException(SmsApiBadReceiversException::class);
-        $this->expectExceptionMessage(self::ERROR_RECEIVERS);
-
-
-        $smsApi->sendSms(
-            new MobilePhoneNumber(self::PHONE_NUMBER),
-            new MessageText(self::MESSAGE)
-        );
-    }
-
-    public function testOrderContent(): void
-    {
-        $mock = new MockHandler([
-            new Response(self::SENDING_CODE, [], json_encode(["charset"])),
-            new Response(self::SENDING_CODE, [], json_encode(["class"])),
-            new Response(self::SENDING_CODE, [], json_encode(["coding"])),
-            new Response(self::SENDING_CODE, [], json_encode(["message"])),
-            new Response(self::SENDING_CODE, [], json_encode(["noStopClause"])),
-            new Response(self::SENDING_CODE, [], json_encode(["priority"])),
-            new Response(self::SENDING_CODE, [], json_encode(["receivers"])),
-            new Response(self::SENDING_CODE, [], json_encode(["senderForResponse"])),
-            new Response(self::SENDING_CODE, [], json_encode(["validityPeriod"])),
-        ]);
-
-        $handlerStack = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handlerStack]);
-        $smsApi = new OvhSmsSender($client,);
-
-        $content = $smsApi->getContent($this->messageText, $this->phoneNumber);
-        $expectedOrder = [
-            "charset",
-            "class",
-            "coding",
-            "message",
-            "noStopClause",
-            "priority",
-            "receivers",
-            "senderForResponse",
-            "validityPeriod"
-        ];
-
-        $content = $smsApi->getContent($this->messageText, $this->phoneNumber);
-        $actualOrder = array_keys($content);
-        $this->assertSame($expectedOrder, $actualOrder);
-    }
-
     public function testRequestPhoneNumber(): void
     {
         $mock = new MockHandler([
@@ -153,5 +95,57 @@ class OvhSmsSenderTest extends TestCase
         $this->assertNotEmpty($applicationkeyOvh);
         $this->assertNotEmpty($applicationsecretkeyOvh);
         $this->assertNotEmpty($consumerkeyOvh);
+    }
+
+    public function testGetContent()
+    {
+        $mock = new MockHandler([
+            new Response(self::SENDING_CODE, []),
+            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
+            new Response(self::SENDING_CODE, [], json_encode(["receivers" => ["+33623456789"]])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $sender = new OvhSmsSender($client);
+        $phoneNumber = '0612345678';
+        $messageText = 'Hello World';
+
+        $expectedContent = [
+            'charset' => 'UTF-8',
+            'class' => 'phoneDisplay',
+            'coding' => '7bit',
+            'message' => $messageText,
+            'noStopClause' => false,
+            'priority' => 'high',
+            'receivers' => [$phoneNumber],
+            'senderForResponse' => true,
+            'validityPeriod' => 2880,
+        ];
+
+        $this->assertEquals($expectedContent, $sender->getContent($messageText, $phoneNumber));
+    }
+
+    public function testSendSmsThrowsExceptionForInvalidReceivers(): void
+    {
+        $mock = new MockHandler([
+            new Response(self::SENDING_CODE, []),
+            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => ""])),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $smsApi = new OvhSmsSender($client);
+
+        $this->expectException(SmsApiBadReceiversException::class);
+        $this->expectExceptionMessage(self::ERROR_RECEIVERS);
+
+
+        $smsApi->sendSms(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
     }
 }

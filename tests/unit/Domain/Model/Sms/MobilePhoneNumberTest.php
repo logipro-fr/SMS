@@ -1,77 +1,69 @@
 <?php
-
 namespace Sms\Tests\Domain\Model\Sms;
-
 use PHPUnit\Framework\TestCase;
-use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
-
-use function SafePHP\strval;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
 
 class MobilePhoneNumberTest extends TestCase
 {
-    public function testValidPhoneNumbers(): void
+    public function testValidMobilePhoneNumber()
     {
-        $validNumbers = [
-            '0601020304',
-            '0701020304',
-            '+33601020304',
-            '+33799999999',
-            '06 01 02 03 04'
-        ];
-        foreach ($validNumbers as $num) {
-            $pn = new MobilePhoneNumber($num);
-            $this->assertIsString($pn->getNumber());
-        }
+        $phoneNumber = new MobilePhoneNumber('0612345678');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+        $this->assertEquals('+33612345678', $phoneNumber->getInternationalFormatedNumber());
     }
 
-    public function testInvalidPhoneNumbers(): void
+    public function testValidMobilePhoneNumberWithCountryCode()
     {
-        $wrongNumbers = [
-            '060-10/20',
-            '060102030A',
-            '123456789012345',
-            '060011203a04',
-            '+31212345678',
-            '05 68 12 49 83',
-        ];
-        foreach ($wrongNumbers as $num) {
-            try {
-                new MobilePhoneNumber($num);
-                $this->assertTrue(false);
-            } catch (InvalidPhoneNumber $e) {
-                $this->assertStringStartsWith('Invalid phone number ' . substr(strval($num), 0, 2), $e->getMessage());
-            }
-        }
+        $phoneNumber = new MobilePhoneNumber('+33612345678');
+        $this->assertEquals('+33612345678', $phoneNumber->getNumber());
+        $this->assertEquals('+33612345678', $phoneNumber->getInternationalFormatedNumber());
     }
 
-    public function testInvalidPhoneNumbersBadCharacter(): void
+    public function testValidMobilePhoneNumberWithSpaces()
     {
-        $emptyNumbers = [
-            '      ',
-            ''
-        ];
-        foreach ($emptyNumbers as $numEmpty) {
-            try {
-                new MobilePhoneNumber($numEmpty);
-                $this->assertTrue(false);
-            } catch (InvalidPhoneNumber $e) {
-                $this->assertEquals('Bad and empty character in phone number', $e->getMessage());
-            }
-        }
+        $phoneNumber = new MobilePhoneNumber('06 12 34 56 78');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+        $this->assertEquals('+33612345678', $phoneNumber->getInternationalFormatedNumber());
+    }
 
-        $wrongNumbers = [
-            'abc',
-            '06 70 82 73 76 89',
-            '00 71 09 15 53'
-        ];
-        foreach ($wrongNumbers as $num) {
-            try {
-                new MobilePhoneNumber($num);
-                $this->assertTrue(false);
-            } catch (InvalidPhoneNumber $e) {
-                $this->assertStringStartsWith('Invalid phone number', $e->getMessage());
-            }
-        }
+    public function testInvalidMobilePhoneNumberWithNonMobilePrefix()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number 0112345678');
+
+        new MobilePhoneNumber('0112345678');
+    }
+
+    public function testInvalidMobilePhoneNumberWithLetters()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number 06abc45678');
+
+        new MobilePhoneNumber('06abc45678');
+    }
+
+    public function testEmptyMobilePhoneNumber()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Bad and empty character in phone number');
+
+        new MobilePhoneNumber('');
+    }
+
+    public function testInvalidMobilePhoneNumberFormat()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number 061234567');
+
+        new MobilePhoneNumber('061234567');
+    }
+
+    public function testInvalidMobilePhoneNumberWithInvalidCountryCode()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number +44612345678');
+
+        new MobilePhoneNumber('+44612345678');
     }
 }

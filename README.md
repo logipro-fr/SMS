@@ -1,22 +1,51 @@
-# SMS
+# SMS 
 
+## Installation
 
-
-# Install
-
-```console
+```bash
 git clone git@github.com:logipro-fr/SMS.git
 cd SMS
 ./install
 ```
 
-# To Contribute to Sms
+## Contributing to the SMS Project
 
-## Requirements
+### Requirements
 
-* docker >=24.0.6
-* git
+- Docker >= 24.0.6
+- Git
 
+### Setup
+
+To use this project, you need to create a `secret.env` file in the root directory. This file should contain the following fields:
+
+- APPLICATION_KEY_OVH=YOUR_APPLICATION_KEY_OVH
+- APPLICATION_SECRET_OVH=YOUR_APPLICATION_SECRET_OVH
+- CONSUMER_KEY_OVH=YOUR_CONSUMER_KEY_OVH
+
+### Getting Your API Credentials
+
+You need credentials to access the OVH SMS API. These credentials are generated once to identify the application that will send SMS messages. The lifespan of these credentials can be configured.
+
+Create your script credentials (all keys at once) on the following page: [Create OVH Token](https://api.ovh.com/createToken) (this URL automatically provides the correct permissions for the steps outlined in this guide).
+
+Make sure to obtain the rights to:
+
+- Access account information
+- View pending SMS jobs
+- Send SMS messages
+
+The required API endpoints are:
+
+- GET /sms
+- GET /sms/*/jobs
+- POST /sms/*/jobs
+
+Once you generate your credentials, you'll receive:
+
+- **Application Key** (identifies your application)
+- **Application Secret** (authenticates your application)
+- **Consumer Key** (authorizes your application to access the selected methods)
 
 ## Unit test
 
@@ -31,34 +60,35 @@ Using Test-Driven Development (TDD) principles (thanks to Kent Beck and others),
 ```console
 ./start
 ```
-have a local look at http://127.0.0.1:11302/ in your navigator
+Have a local look at http://172.17.0.1:11302/ in your navigator.
 
 ```console
 ./stop
 ```
 
-## Quality
+### Quality
+#### Some indicators:
+* PHP CodeSniffer (PSR12)
+* PHPStan level 9
+* Test coverage = 100%
+* Mutation Score Indicator (MSI) = 100%
 
-Some indicators that seem interesting.
 
-* phpcs PSR12
-* phpstan level 9
-* 100% coverage obtained naturally thanks to the “classic school” TDD approach
-* we hunt mutants with “Infection”. We aim for an MSI score of 100% for “panache”
-
-Quick check with:
-```console
+#### Quick check with:
+```shell
 ./codecheck
 ```
 
-Check coverage with:
-```console
+
+#### Check coverage with:
+```shell
 bin/phpunit --coverage-html var
 ```
-and view 'var/index.html' with your browser
+Then, view the coverage report in your browser at 'var/index.html'.
 
-Check infection with:
-```console
+
+#### Check infection with:
+```shell
 bin/infection
 ```
-and view 'var/infection.html' with your browser
+Then, view the infection report in your browser at 'var/infection.html'.

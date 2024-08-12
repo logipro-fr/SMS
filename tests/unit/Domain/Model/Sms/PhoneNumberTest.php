@@ -1,96 +1,108 @@
 <?php
-
 namespace Sms\Tests\Domain\Model\Sms;
 
 use PHPUnit\Framework\TestCase;
-use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
 use Sms\Domain\Model\Sms\PhoneNumber;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
 
 class PhoneNumberTest extends TestCase
 {
-    public function testPhoneNumbers(): void
+    public function testValidPhoneNumber()
     {
-        $bonNumeros = [
-            '0601020304',
-            '0701020304',
-            '+33601020304',
-            '+33799999999',
-            '06 01 02 03 04'
-        ];
-        for ($i = 0; $i < count($bonNumeros); $i++) {
-            $pn = new PhoneNumber($bonNumeros[$i]);
-            $this->assertIsString($pn->getNumber());
-        }
+        $phoneNumber = new PhoneNumber('0123456789');
+        $this->assertEquals('0123456789', $phoneNumber->getNumber());
+        $this->assertEquals('+33123456789', $phoneNumber->getInternationalFormatedNumber());
     }
 
-    public function testInvalidPhoneNumbers(): void
+    public function testValidPhoneNumberWithCountryCode()
     {
-        $mauvaisNumeros = [
-            '0601020',
-            '060102030A',
-            '123456789012345',
-            '060011203a04',
-            '007101020304'
-        ];
-        for ($i = 0; $i < count($mauvaisNumeros); $i++) {
-            try {
-                new PhoneNumber($mauvaisNumeros[$i]);
-                $this->assertSame('Ce numero est correct', $mauvaisNumeros[$i]);
-            } catch (InvalidPhoneNumber $e) {
-                $this->assertStringStartsWith(
-                    'Invalid phone number ' . substr(strval($mauvaisNumeros[$i]), 0, 2),
-                    $e->getMessage()
-                );
-            }
-        }
+        $phoneNumber = new PhoneNumber('+33123456789');
+        $this->assertEquals('+33123456789', $phoneNumber->getNumber());
+        $this->assertEquals('+33123456789', $phoneNumber->getInternationalFormatedNumber());
     }
 
-    public function testInvalidPhoneNumbersBadCharacter(): void
+    public function testValidPhoneNumberWithSpaces()
     {
-        $mauvaisNumeros = [
-            '      '
-        ];
-        for ($i = 0; $i < count($mauvaisNumeros); $i++) {
-            try {
-                new PhoneNumber($mauvaisNumeros[$i]);
-                $this->assertSame('Ce numero est correct', $mauvaisNumeros[$i]);
-            } catch (InvalidPhoneNumber $e) {
-                $this->assertInstanceOf(InvalidPhoneNumber::class, $e);
-                $this->assertStringContainsString('Bad and empty character in phone number', $e->getMessage());
-            }
-        }
-        $mauvaisNumeros = [
-            'abc',
-            '06 70 82 73 76 89',
-            '00 71 09 15 53'
-        ];
-        for ($i = 0; $i < count($mauvaisNumeros); $i++) {
-            try {
-                new PhoneNumber($mauvaisNumeros[$i]);
-                $this->assertSame('Ce numero est correct', $mauvaisNumeros[$i]);
-            } catch (InvalidPhoneNumber $e) {
-                $this->assertInstanceOf(InvalidPhoneNumber::class, $e);
-                $this->assertStringContainsString('Invalid phone number', $e->getMessage());
-            }
-        }
+        $phoneNumber = new PhoneNumber('01 23 45 67 89');
+        $this->assertEquals('0123456789', $phoneNumber->getNumber());
+        $this->assertEquals('+33123456789', $phoneNumber->getInternationalFormatedNumber());
     }
 
-    public function testGetInternationalPhoneNumbers(): void
+    public function testPhoneNumberWithLeadingAndTrailingSpaces()
     {
-        $correctNumbers = [
-            '0201020304',
-            '0401020304',
-            '0033601020304',
-            '+33899999999',
-            '09 01 02 03 04'
-        ];
+        $phoneNumber = new PhoneNumber(' 0612345678 ');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+    }
 
-        foreach ($correctNumbers as $number) {
-            $pn = new PhoneNumber($number);
-            $this->assertMatchesRegularExpression(
-                PhoneNumber::PATTERN_INTERNATIONAL_PHONE_NUMBER,
-                $pn->getInternationalFormatedNumber()
-            );
-        }
+    public function testInvalidPhoneNumberWithLetters()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number 0123abc789');
+
+        new PhoneNumber('0123abc789');
+    }
+
+    public function testPhoneNumberWithSpaceReplacement()
+    {
+        $phoneNumber = new PhoneNumber('06 12 34 56 78');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+    }
+
+    public function testPhoneNumberWithLeadingSpaceReplacement()
+    {
+        $phoneNumber = new PhoneNumber(' 0612345678');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+    }
+
+    public function testPhoneNumberWithTrailingSpaceReplacement()
+    {
+        $phoneNumber = new PhoneNumber('0612345678 ');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+    }
+
+    public function testPhoneNumberWithMultipleSpacesReplacement()
+    {
+        $phoneNumber = new PhoneNumber('06  12  34  56  78');
+        $this->assertEquals('0612345678', $phoneNumber->getNumber());
+    }
+
+    public function testEmptyPhoneNumber()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Bad and empty character in phone number');
+
+        new PhoneNumber('');
+    }
+
+    public function testInvalidPhoneNumberFormat()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number 01234567');
+
+        new PhoneNumber('01234567');
+    }
+
+    public function testInvalidPhoneNumberWithInvalidCountryCode()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number +44123456789');
+
+        new PhoneNumber('+44123456789');
+    }
+
+    public function testPhoneNumberWithOnlySpaces()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Bad and empty character in phone number');
+
+        new PhoneNumber(' ');
+    }
+
+    public function testPhoneNumberWithMixedSpacesAndInvalidCharacters()
+    {
+        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectExceptionMessage('Invalid phone number 0612abc678');
+
+        new PhoneNumber('06 12 abc 678');
     }
 }

@@ -4,7 +4,6 @@ namespace Sms\Tests\Integration;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
-use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;

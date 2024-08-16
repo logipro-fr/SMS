@@ -22,6 +22,7 @@ To use this project, you need to create a `secret.env` file in the root director
 - APPLICATION_KEY_OVH=YOUR_APPLICATION_KEY_OVH
 - APPLICATION_SECRET_OVH=YOUR_APPLICATION_SECRET_OVH
 - CONSUMER_KEY_OVH=YOUR_CONSUMER_KEY_OVH
+- TESTING_PHONE_NUMBER=YOUR-PHONE-NUMBER-FOR-INTEGRATION-TEST
 
 ### Getting Your API Credentials
 
@@ -52,7 +53,10 @@ Once you generate your credentials, you'll receive:
 ```console
 bin/phpunit
 ```
-
+## Integration test
+```console
+bin/phpunit-integration
+```
 Using Test-Driven Development (TDD) principles (thanks to Kent Beck and others), following good practices (thanks to Uncle Bob and others).
 
 ## Manual tests
@@ -65,6 +69,8 @@ Have a local look at http://172.17.0.1:11302/ in your navigator.
 ```console
 ./stop
 ```
+
+
 
 ### Quality
 #### Some indicators:

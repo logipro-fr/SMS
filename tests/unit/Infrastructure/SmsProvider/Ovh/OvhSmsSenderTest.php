@@ -27,16 +27,11 @@ class OvhSmsSenderTest extends TestCase
     private const LINK = '/../../../../ressources/responseobject.json';
     private const ERROR_RECEIVERS = "Error sending message, check recipient!";
 
-    private string $messageText;
-    private string $phoneNumber;
-
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->phoneNumber = self::PHONE_NUMBER;
-        $this->messageText = self::MESSAGE;
         $dotenv = new Dotenv();
         $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
     }
@@ -97,7 +92,7 @@ class OvhSmsSenderTest extends TestCase
         $this->assertNotEmpty($consumerkeyOvh);
     }
 
-    public function testGetContent()
+    public function testGetContent(): void
     {
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),

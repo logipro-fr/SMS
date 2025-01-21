@@ -29,8 +29,10 @@ class SmsIntegrationTest extends TestCase
 
         $smsApi = new OvhSmsSender($client);
 
+        /** @var string $phone */
+        $phone = $_ENV['PHONE_NUMBER'];
         $response = $smsApi->sendSms(
-            new MobilePhoneNumber($_ENV['PHONE_NUMBER']),
+            new MobilePhoneNumber($phone),
             new MessageText(self::MESSAGE)
         );
 

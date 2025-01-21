@@ -80,7 +80,6 @@ class SmsServiceTest extends TestCase
         $savedSms = $repository->findById($response->smsId);
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->statusMessage);
-        $this->assertNotNull($savedSms);
         $this->assertEquals(new MessageText('Test'), $savedSms->getSmsMessage());
         $this->assertEquals('+33623456789', $savedSms->getSmsPhoneNumber());
     }

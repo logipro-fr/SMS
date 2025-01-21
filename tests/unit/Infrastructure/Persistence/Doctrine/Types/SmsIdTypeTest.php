@@ -18,7 +18,7 @@ class SmsIdTypeTest extends TestCase
     {
         $type = new SmsIdType();
         $id = $type->convertToPHPValue("sms_id", new SqlitePlatform());
-        $this->assertEquals(true, $id instanceof SmsId);
+        $this->assertEquals(new SmsId("sms_id"), $id);
     }
 
 

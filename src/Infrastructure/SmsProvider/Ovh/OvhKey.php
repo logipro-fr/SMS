@@ -10,9 +10,15 @@ class OvhKey
 
     public function __construct()
     {
-        $this->applicationKey = $_ENV['APPLICATION_KEY_OVH'];
-        $this->applicationSecret = $_ENV['APPLICATION_SECRET_OVH'];
-        $this->consumerKey = $_ENV['CONSUMER_KEY_OVH'];
+        /** @var string $akey */
+        $akey = $_ENV['APPLICATION_KEY_OVH'];
+        /** @var string $asec */
+        $asec = $_ENV['APPLICATION_SECRET_OVH'];
+        /** @var string $ckey */
+        $ckey = $_ENV['CONSUMER_KEY_OVH'];
+        $this->applicationKey = $akey;
+        $this->applicationSecret = $asec;
+        $this->consumerKey = $ckey;
     }
 
     public function getApplicationKey(): string

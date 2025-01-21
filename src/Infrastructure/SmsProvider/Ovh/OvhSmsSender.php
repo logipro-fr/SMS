@@ -51,7 +51,9 @@ class OvhSmsSender implements SenderProviderInterface
             $this->http_client,
         );
 
+        /** @var array<string> $smsServices */
         $smsServices = $conn->get('/sms/');
+        /** @var array<int|string,bool> $response */
         $response = $conn->post(sprintf(self::LINK_OVH, $smsServices[self::SERVICE_NUMBER_OVH]), $content);
 
         if ($response['validReceivers']) {

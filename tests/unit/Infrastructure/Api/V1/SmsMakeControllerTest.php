@@ -76,7 +76,7 @@ class SmsMakeControllerTest extends WebTestCase
         /** @var string */
         $responseContent = $response->getContent();
 
-        /** @var \stdClass */
+        /** @var \stdClass&object{success:bool,message:string,statusCode:string,data:object{statusMessage:string,smsId:string}} */
         $responseObject = json_decode($responseContent);
 
         $this->assertTrue($responseObject->success);
@@ -117,7 +117,7 @@ class SmsMakeControllerTest extends WebTestCase
 
         $content = $response->getContent();
 
-        /** @var \stdClass */
+        /** @var \stdClass&object{success:bool,message:string,statusCode:string,data:object{statusMessage:string,smsId:string}} */
         $responseObject = json_decode(strval($content));
 
         $this->assertTrue($responseObject->success);
@@ -153,7 +153,7 @@ class SmsMakeControllerTest extends WebTestCase
         $response = $controller->execute($request);
         $content = $response->getContent();
 
-        /** @var array<mixed> $responseData
+        /** @var array{success:bool,statusCode:string,data:string,message:string} $responseData
          * @var string  $content
         */
         $responseData = json_decode($content, true);

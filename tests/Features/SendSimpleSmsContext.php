@@ -36,6 +36,8 @@ class SendSimpleSmsContext implements Context
     {
         $dotenv = new Dotenv();
         $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
+
+        $dotenv->loadEnv(getcwd() . '/secret.env');
     }
 
      /**

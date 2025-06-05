@@ -36,7 +36,7 @@ class OvhSmsSenderTest extends TestCase
         $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
     }
 
-    public function testSendSms(): void
+    public function testSendSmsService(): void
     {
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
@@ -48,7 +48,7 @@ class OvhSmsSenderTest extends TestCase
 
         $smsApi = new OvhSmsSender($client);
 
-        $response = $smsApi->sendSms(
+        $response = $smsApi->sendSmsService(
             new MobilePhoneNumber(self::PHONE_NUMBER),
             new MessageText(self::MESSAGE)
         );
@@ -67,7 +67,7 @@ class OvhSmsSenderTest extends TestCase
         $client = new Client(['handler' => $handlerStack]);
 
         $smsApi = new OvhSmsSender($client);
-        $smsApi->sendSms(
+        $smsApi->sendSmsService(
             new MobilePhoneNumber(self::PHONE_NUMBER),
             new MessageText(self::MESSAGE)
         );
@@ -137,8 +137,7 @@ class OvhSmsSenderTest extends TestCase
         $this->expectException(SmsApiBadReceiversException::class);
         $this->expectExceptionMessage(self::ERROR_RECEIVERS);
 
-
-        $smsApi->sendSms(
+        $smsApi->sendSmsService(
             new MobilePhoneNumber(self::PHONE_NUMBER),
             new MessageText(self::MESSAGE)
         );

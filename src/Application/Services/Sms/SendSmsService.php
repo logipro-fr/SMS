@@ -8,7 +8,7 @@ use Sms\Domain\Model\Sms\Sms;
 use Sms\Domain\Model\Sms\SmsRepositoryInterface;
 use Sms\Domain\Model\Sms\StatusMessage;
 
-class SendSms
+class SendSmsService
 {
     private SendSmsResponse $response;
 
@@ -20,7 +20,7 @@ class SendSms
 
     public function execute(SendSmsRequest $requestSms): void
     {
-        $statusMessageObject = $this->sendSms->sendSms($requestSms->phoneNumber, $requestSms->message);
+        $statusMessageObject = $this->sendSms->sendSmsService($requestSms->phoneNumber, $requestSms->message);
         $statusMessageText = $statusMessageObject->getStatusMessage();
 
         $statusMessage = new StatusMessage($statusMessageText);

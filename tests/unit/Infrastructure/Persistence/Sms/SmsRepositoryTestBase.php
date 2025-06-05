@@ -15,6 +15,8 @@ abstract class SmsRepositoryTestBase extends TestCase
 {
     protected SmsRepositoryInterface $repository;
 
+    private const PHONE_NUMBRE_INTERNATIONAL = "+33623456789";
+
     protected function setUp(): void
     {
         $this->initialize();
@@ -27,8 +29,8 @@ abstract class SmsRepositoryTestBase extends TestCase
         $id = new SmsId("id");
         $id2 = new SmsId("id2");
 
-        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber("+33623456789"), $id);
-        $sms2 = new Sms(new MessageText("test2"), new MobilePhoneNumber("+33623456789"), $id2);
+        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber(self::PHONE_NUMBRE_INTERNATIONAL), $id);
+        $sms2 = new Sms(new MessageText("test2"), new MobilePhoneNumber(self::PHONE_NUMBRE_INTERNATIONAL), $id2);
 
         $this->repository->add($sms);
         $found = $this->repository->findById($id);
@@ -44,7 +46,7 @@ abstract class SmsRepositoryTestBase extends TestCase
     public function testFindByIdException(): void
     {
         $id = new SmsId("id");
-        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber("+33623456789"), $id);
+        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber(self::PHONE_NUMBRE_INTERNATIONAL), $id);
         $this->repository->add($sms);
 
         $this->expectException(SmsNotFoundException::class);

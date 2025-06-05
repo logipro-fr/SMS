@@ -11,7 +11,7 @@ use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\Assert;
 use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSmsResponse;
-use Sms\Application\Services\Sms\SendSms;
+use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
 use Sms\Domain\Model\Sms\SmsId;
 use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
@@ -71,7 +71,7 @@ class SendSimpleSmsContext implements Context
 
         $smsApi = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SendSms($repository, $smsApi);
+        $service = new SendSmsService($repository, $smsApi);
 
 
         $service->execute($this->request);

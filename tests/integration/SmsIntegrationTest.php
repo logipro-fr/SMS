@@ -31,11 +31,24 @@ class SmsIntegrationTest extends TestCase
 
         /** @var string $phone */
         $phone = $_ENV['PHONE_NUMBER'];
-        $response = $smsApi->sendSms(
+        $response = $smsApi->sendSmsService(
             new MobilePhoneNumber($phone),
             new MessageText(self::MESSAGE)
         );
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->getStatusMessage());
+    }
+
+    public function testShouldThrowOnInvalidNumber(): void
+    {
+        $this->expectException(SmsApiBadReceiversException::class);
+
+        $client = new Client();
+        $smsApi = new OvhSmsSender($client);
+
+        $smsApi->sendSmsService(
+            new MobilePhoneNumber('+33000000000'),
+            new MessageText('Test')
+        );
     }
 }

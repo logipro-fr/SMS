@@ -22,7 +22,7 @@ class Sms
 
     public function getSmsMessage(): string
     {
-        return ($this->messagetext->getMessagetext());
+        return $this->messagetext->getMessagetext();
     }
 
     public function getSmsPhoneNumber(): string

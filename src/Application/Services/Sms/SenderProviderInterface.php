@@ -8,5 +8,5 @@ use Sms\Domain\Model\Sms\StatusMessage;
 
 interface SenderProviderInterface
 {
-    public function sendSms(MobilePhoneNumber $phoneNumber, MessageText $message): StatusMessage;
+    public function sendSmsService(MobilePhoneNumber $phoneNumber, MessageText $message): StatusMessage;
 }

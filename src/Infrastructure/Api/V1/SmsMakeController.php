@@ -4,7 +4,7 @@ namespace Sms\Infrastructure\Api\V1;
 
 use Exception;
 use Sms\Application\Services\Sms\SendSmsRequest;
-use Sms\Application\Services\Sms\SendSms;
+use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
@@ -29,7 +29,7 @@ class SmsMakeController
     {
         $request = $this->buildMakeSmsRequest($request);
 
-        $sms = new SendSms($this->repository, $this->sendSms);
+        $sms = new SendSmsService($this->repository, $this->sendSms);
 
         try {
             $sms->execute($request);

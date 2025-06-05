@@ -8,7 +8,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
-use Sms\Application\Services\Sms\SendSms;
+use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
@@ -16,11 +16,12 @@ use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 
 class SmsServiceTest extends TestCase
 {
+    private const PHONE_NUMBER = "+33623456789";
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
     private const RESPONSE_OBJECT = "./../ressourcesresponseobject.json";
 
-    public function testStructureSendSms(): void
+    public function testStructureSendSmsService(): void
     {
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, ['/sms/']),
@@ -32,7 +33,7 @@ class SmsServiceTest extends TestCase
             new Response(
                 self::SENDING_CODE,
                 [],
-                Utils::streamFor(json_encode(["validReceivers" => ["+33623456789"]]))
+                Utils::streamFor(json_encode(["validReceivers" => [self::PHONE_NUMBER]]))
             ),
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -40,16 +41,14 @@ class SmsServiceTest extends TestCase
 
         $smsApi = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SendSms($repository, $smsApi);
+        $service = new SendSmsService($repository, $smsApi);
 
-        $requestSms = FactorySmsBuilder::createRequestServiceSms('test', '+33623456789');
+        $requestSms = FactorySmsBuilder::createRequestServiceSms('test', self::PHONE_NUMBER);
         $service->execute($requestSms);
         $response1 = $service->getResponse();
 
         $this->assertEquals(self::SENDING_MESSAGE, $response1->statusMessage);
     }
-
-
 
     public function testExecute(): void
     {
@@ -63,17 +62,17 @@ class SmsServiceTest extends TestCase
             new Response(
                 self::SENDING_CODE,
                 [],
-                Utils::streamFor(json_encode(["validReceivers" => ["+33623456789"]]))
+                Utils::streamFor(json_encode(["validReceivers" => [self::PHONE_NUMBER]]))
             ),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $sendSmsProvider = new OvhSmsSender($client);
+        $SendSmsServiceProvider = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $sut = new SendSms($repository, $sendSmsProvider);
+        $sut = new SendSmsService($repository, $SendSmsServiceProvider);
 
-        $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', '+33623456789');
+        $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', self::PHONE_NUMBER);
 
         $sut->execute($requestSms);
         $response = $sut->getResponse();
@@ -81,6 +80,6 @@ class SmsServiceTest extends TestCase
 
         $this->assertEquals(self::SENDING_MESSAGE, $response->statusMessage);
         $this->assertEquals(new MessageText('Test'), $savedSms->getSmsMessage());
-        $this->assertEquals('+33623456789', $savedSms->getSmsPhoneNumber());
+        $this->assertEquals(self::PHONE_NUMBER, $savedSms->getSmsPhoneNumber());
     }
 }

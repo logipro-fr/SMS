@@ -21,13 +21,13 @@ class PhoneNumber
 
     protected function normalizeFormat(string $number): string
     {
-        /** @var string $number */
-        $number = preg_replace([self::SPACE_PATTERN], [''], $number) ?? '';
-        if ($number == '') {
+        $number = preg_replace(self::SPACE_PATTERN, '', $number) ?? '';
+        if ($number === '') {
             throw new InvalidPhoneNumber('Bad and empty character in phone number');
         }
         return $number;
     }
+
 
     private function checkPhoneNumberFormat(string $number): void
     {

@@ -5,6 +5,7 @@ namespace Sms\Infrastructure\SmsProvider\Ovh;
 use GuzzleHttp\Client;
 use Ovh\Api;
 use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
+use Sms\Application\Services\Sms\Exceptions\SmsApiNoCreditException;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\StatusMessage;
 use Sms\Application\Services\Sms\SenderProviderInterface;
@@ -55,6 +56,12 @@ class OvhSmsSender implements SenderProviderInterface
         $smsServices = $conn->get('/sms/');
         /** @var array<int|string,bool> $response */
         $response = $conn->post(sprintf(self::LINK_OVH, $smsServices[self::SERVICE_NUMBER_OVH]), $content);
+
+        $message = $response['message'] ?? '';
+
+        if (is_string($message) && str_contains($message, 'not enough credit')) {
+            throw new SmsApiNoCreditException('Insufficient SMS credit');
+        }
 
         if ($response['validReceivers']) {
             return new StatusMessage(self::SENDING_MESSAGE);

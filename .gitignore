@@ -2,3 +2,4 @@
 /vendor/
 .env.local
 secret.env
+/docker/mariadb/_data/

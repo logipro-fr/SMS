@@ -142,4 +142,25 @@ class OvhSmsSenderTest extends TestCase
             new MessageText(self::MESSAGE)
         );
     }
+
+    public function testSendSmsThrowsExceptionWhenNotEnoughCredit(): void
+    {
+        $mock = new MockHandler([
+            new Response(self::SENDING_CODE, []),
+            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
+            new Response(self::SENDING_CODE, [], json_encode(['message' => 'Error: not enough credit'])),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $smsApi = new OvhSmsSender($client);
+
+        $this->expectException(\Sms\Application\Services\Sms\Exceptions\SmsApiNoCreditException::class);
+        $this->expectExceptionMessage('Insufficient SMS credit');
+
+        $smsApi->sendSmsService(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
+    }
 }

@@ -68,9 +68,9 @@ class SmsServiceTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        $SendSmsServiceProvider = new OvhSmsSender($client);
+        $sendSmsServiceProvider = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $sut = new SendSmsService($repository, $SendSmsServiceProvider);
+        $sut = new SendSmsService($repository, $sendSmsServiceProvider);
 
         $requestSms = FactorySmsBuilder::createRequestServiceSms('Test', self::PHONE_NUMBER);
 

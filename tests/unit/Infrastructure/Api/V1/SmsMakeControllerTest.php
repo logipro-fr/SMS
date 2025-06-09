@@ -22,6 +22,9 @@ class SmsMakeControllerTest extends WebTestCase
 {
     private const RESPONSE_OBJECT = "responseobject.json";
     private const SENDING_CODE = 200;
+    private const PHONE_NUMBER = "+33623456789";
+    private const CONTENT_TYPE = 'application/json';
+    private const ROOT_API_SMS = "/api/V1/Sms/";
 
     private KernelBrowser $client;
 
@@ -36,14 +39,14 @@ class SmsMakeControllerTest extends WebTestCase
             "api/v1/sms/send",
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => self::CONTENT_TYPE],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => "+33623456789",
+                "phoneNumber" => self::PHONE_NUMBER,
             ]),
         );
-        /** @var string */
-        $responseContent = $this->client->getResponse()->getContent();
+
+        $this->client->getResponse()->getContent();
         $this->assertResponseIsSuccessful();
     }
 
@@ -53,7 +56,7 @@ class SmsMakeControllerTest extends WebTestCase
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
             new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33623456789"]]])),
+            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [[self::PHONE_NUMBER]]])),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
@@ -61,15 +64,15 @@ class SmsMakeControllerTest extends WebTestCase
         $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
-            "/api/V1/Sms/",
+            self::ROOT_API_SMS,
             "GET",
             [],
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => self::CONTENT_TYPE],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => "+33623456789",
+                "phoneNumber" => self::PHONE_NUMBER,
             ]),
         );
         $response = $controller->execute($request);
@@ -101,15 +104,15 @@ class SmsMakeControllerTest extends WebTestCase
         $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
-            "/api/V1/Sms/",
+            self::ROOT_API_SMS,
             "GET",
             [],
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => self::CONTENT_TYPE],
             json_encode([
                 "messageText" => "test",
-                "phoneNumber" => "+33623456789",
+                "phoneNumber" => self::PHONE_NUMBER,
             ]),
         );
 
@@ -138,15 +141,15 @@ class SmsMakeControllerTest extends WebTestCase
         $sendSms = new OvhSmsSender($client);
         $controller = new SmsMakeController($repository, $sendSms);
         $request = Request::create(
-            "/api/V1/Sms/",
+            self::ROOT_API_SMS,
             "GET",
             [],
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => self::CONTENT_TYPE],
             json_encode([
             "messageText" => "test",
-            "phoneNumber" => "+33623456789",
+            "phoneNumber" => self::PHONE_NUMBER,
             ]),
         );
 

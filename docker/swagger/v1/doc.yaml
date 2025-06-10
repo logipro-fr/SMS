@@ -5,7 +5,7 @@ info:
 servers:
   - url: /api/v1
     description: API routes
-  - url: http://172.17.0.1:11380/api/v1
+  - url: http://localhost:11380/api/v1
     description: Local server
 paths:
   /sms/send:
@@ -55,8 +55,8 @@ paths:
                         type: string
                         description: Sms identity
                         example: sms_123456780
-        '402':
-          description: Payment required
+        '403':
+          description: Invalids credentials
           content:
             application/json:
               schema:
@@ -69,7 +69,7 @@ paths:
                   statusCode:
                     type: string
                     description: Name of the exception class if any error occurs
-                    example: SmsApiBadResponseException
+                    example: SmsApiNoCreditException
                   data:
                     type: object
                     example:

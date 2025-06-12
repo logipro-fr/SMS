@@ -45,6 +45,29 @@ services:
       - "${HOST_IP}:11302:8080"
     networks:
       - sms-network
+      
+  mariadb:
+    image: mariadb:10.11
+    restart: always
+    volumes:
+      - ${DATA_PATH}/${COMPOSE_PROJECT_NAME}/mariadb:/var/lib/mysql
+      - ./mariabackup:/backup
+    env_file:
+      - ./docker/mariadb/db.env
+    networks:
+      - sms-network
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mariadb
+    depends_on:
+      - mariadb
+    ports:
+      - "${HOST_IP}:11390:80"
+    networks:
+      - sms-network
 
 networks:
   sms-network:

@@ -5,6 +5,7 @@ namespace Sms\Infrastructure\Persistence\Doctrine\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Sms\Domain\Model\Sms\SmsId;
+use InvalidArgumentException;
 
 class SmsIdType extends Type
 {
@@ -17,21 +18,20 @@ class SmsIdType extends Type
     /**
      * @param SmsId $value
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
+    public function convertToDatabaseValue($value, AbstractPlatform $platform): string
     {
-        return $value->getId();
+        return (string) $value;
     }
     /**
      * @param string $value
      */
     public function convertToPHPValue($value, AbstractPlatform $platform): SmsId
     {
-        return new SmsId($value);
+                return new SmsId($value);
     }
 
     /**
      * @param mixed[] $column
-     * @return string
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

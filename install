@@ -35,5 +35,5 @@ echo "-------------Step 4: Composer tool will install php components in vendor d
 echo "-------------Step 4: Done!"
 
 echo "-------------Step 5: Create database if no database exists---------------------------------------"
-create_database_in_container "docker/mariadb/db.env" "sms-mariadb" "sms-php"
+create_database_in_container "docker/mariadb/db.env" "sms-mariadb-1" "sms-php"
 echo "-------------Step 5: Done!"

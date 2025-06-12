@@ -3,8 +3,9 @@ doctrine:
     url: "%env(resolve:DATABASE_URL)%"
     types:
       sms_id: Sms\Infrastructure\Persistence\Doctrine\Types\SmsIdType
-      messagetext: Sms\Infrastructure\Persistence\Doctrine\Types\MessageTextType
       phonenumber: Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType
+      messagetext: Sms\Infrastructure\Persistence\Doctrine\Types\MessageTextType
+
       
   orm:
     auto_generate_proxy_classes: true

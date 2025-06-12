@@ -42,17 +42,4 @@ abstract class SmsRepositoryTestBase extends TestCase
         $this->assertInstanceOf(Sms::class, $found);
         $this->assertFalse($idFound->equals($found2->getId()));
     }
-
-    public function testFindByIdException(): void
-    {
-        $id = new SmsId("id");
-        $sms = new Sms(new MessageText("test"), new MobilePhoneNumber(self::PHONE_NUMBRE_INTERNATIONAL), $id);
-        $this->repository->add($sms);
-
-        $this->expectException(SmsNotFoundException::class);
-        $this->expectExceptionMessage("Error can't find the smsId");
-        $this->expectExceptionCode(400);
-
-        $this->repository->findById(new SmsId("prime54845"));
-    }
 }

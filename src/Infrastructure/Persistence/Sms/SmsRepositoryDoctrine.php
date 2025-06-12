@@ -20,14 +20,16 @@ class SmsRepositoryDoctrine extends EntityRepository implements SmsRepositoryInt
 
     public function add(Sms $sms): void
     {
-        $this->getEntityManager()->persist($sms);
+        $em = $this->getEntityManager();
+        $em->persist($sms);
+        $em->flush();
     }
 
     public function findById(SmsId $smsId): Sms
     {
-        $sms = $this->getEntityManager()->find(Sms::class, $smsId);
+        $sms = $this->getEntityManager()->find(Sms::class, $smsId->__toString());
         if ($sms === null) {
-            throw new SmsNotFoundException("Error can't find the smsId", 400);
+            throw new SmsNotFoundException("Error can't find the smsId");
         }
         return $sms;
     }

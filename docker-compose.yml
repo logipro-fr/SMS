@@ -46,8 +46,9 @@ services:
     networks:
       - sms-network
       
-  mariadb:
+  sms-mariadb:
     image: mariadb:10.11
+    container_name: "sms-mariadb"
     restart: always
     volumes:
       - ${DATA_PATH}/${COMPOSE_PROJECT_NAME}/mariadb:/var/lib/mysql
@@ -61,9 +62,9 @@ services:
     image: phpmyadmin
     restart: always
     environment:
-      PMA_HOST: mariadb
+      PMA_HOST: sms-mariadb
     depends_on:
-      - mariadb
+      - sms-mariadb
     ports:
       - "${HOST_IP}:11390:80"
     networks:

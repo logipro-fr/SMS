@@ -4,7 +4,7 @@ namespace Sms\Tests\Domain\Model\Sms;
 
 use PHPUnit\Framework\TestCase;
 use Sms\Domain\Model\Sms\PhoneNumber;
-use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumberException;
 
 class PhoneNumberTest extends TestCase
 {
@@ -17,7 +17,7 @@ class PhoneNumberTest extends TestCase
     private const ONLY_SPACES = ' ';
     private const MIXED_SPACES_AND_LETTERS = '06 12 abc 678';
     private const ERROR_INVALID = 'Invalid phone number ';
-    private const ERROR_EMPTY = 'Bad and empty character in phone number';
+    private const ERROR_EMPTY = 'Invalid phone number or bad receivers';
 
     public function testShouldAcceptValidLocalNumber(): void
     {
@@ -59,7 +59,7 @@ class PhoneNumberTest extends TestCase
 
     public function testShouldThrowForLettersInPhoneNumber(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::ERROR_INVALID . self::WITH_LETTERS);
 
         new PhoneNumber(self::WITH_LETTERS);
@@ -67,7 +67,7 @@ class PhoneNumberTest extends TestCase
 
     public function testShouldThrowForEmptyPhoneNumber(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::ERROR_EMPTY);
 
         new PhoneNumber('');
@@ -75,7 +75,7 @@ class PhoneNumberTest extends TestCase
 
     public function testShouldThrowForIncompletePhoneNumber(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::ERROR_INVALID . self::INCOMPLETE_NUMBER);
 
         new PhoneNumber(self::INCOMPLETE_NUMBER);
@@ -83,7 +83,7 @@ class PhoneNumberTest extends TestCase
 
     public function testShouldThrowForInvalidCountryCode(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::ERROR_INVALID . self::INVALID_COUNTRY_CODE);
 
         new PhoneNumber(self::INVALID_COUNTRY_CODE);
@@ -91,7 +91,7 @@ class PhoneNumberTest extends TestCase
 
     public function testShouldThrowForOnlySpaces(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::ERROR_EMPTY);
 
         new PhoneNumber(self::ONLY_SPACES);
@@ -99,7 +99,7 @@ class PhoneNumberTest extends TestCase
 
     public function testShouldThrowForMixedSpacesAndInvalidCharacters(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::ERROR_INVALID . '0612abc678');
 
         new PhoneNumber(self::MIXED_SPACES_AND_LETTERS);

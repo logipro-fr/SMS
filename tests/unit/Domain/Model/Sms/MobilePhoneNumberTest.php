@@ -4,7 +4,7 @@ namespace Sms\Tests\Domain\Model\Sms;
 
 use PHPUnit\Framework\TestCase;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
-use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumberException;
 
 class MobilePhoneNumberTest extends TestCase
 {
@@ -43,7 +43,7 @@ class MobilePhoneNumberTest extends TestCase
 
     public function testShouldThrowExceptionForNonMobilePrefix(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::INVALID_ERROR . self::INVALID_NON_MOBILE);
 
         new MobilePhoneNumber(self::INVALID_NON_MOBILE);
@@ -51,7 +51,7 @@ class MobilePhoneNumberTest extends TestCase
 
     public function testShouldThrowExceptionForNumberWithLetters(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::INVALID_ERROR . self::INVALID_WITH_LETTERS);
 
         new MobilePhoneNumber(self::INVALID_WITH_LETTERS);
@@ -59,15 +59,15 @@ class MobilePhoneNumberTest extends TestCase
 
     public function testShouldThrowExceptionForEmptyNumber(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
-        $this->expectExceptionMessage('Bad and empty character in phone number');
+        $this->expectException(InvalidPhoneNumberException::class);
+        $this->expectExceptionMessage('Invalid phone number or bad receivers');
 
         new MobilePhoneNumber('');
     }
 
     public function testShouldThrowExceptionForIncompleteNumber(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::INVALID_ERROR  . self::INCOMPLETE_NUMBER);
 
         new MobilePhoneNumber(self::INCOMPLETE_NUMBER);
@@ -75,7 +75,7 @@ class MobilePhoneNumberTest extends TestCase
 
     public function testShouldThrowExceptionForInvalidCountryCode(): void
     {
-        $this->expectException(InvalidPhoneNumber::class);
+        $this->expectException(InvalidPhoneNumberException::class);
         $this->expectExceptionMessage(self::INVALID_ERROR . self::INVALID_COUNTRY_CODE);
 
         new MobilePhoneNumber(self::INVALID_COUNTRY_CODE);

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Domain\Model\Sms\Sms;
+use Sms\Domain\Model\Sms\SmsId;
 use Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType;
 
 class PhoneNUmberTypeTest extends TestCase
@@ -19,16 +20,13 @@ class PhoneNUmberTypeTest extends TestCase
     public function testConvertValuePhoneNUmberType(): void
     {
         $type = new PhoneNumberType();
-        $dbValue = $type->convertToDatabaseValue(
-            $sms = new Sms(
-                new MessageText("ceci est un message !"),
-                new MobilePhoneNumber("+33623456789")
-            ),
-            new SqlitePlatform()
-        );
+        $phone = new MobilePhoneNumber("+33623456789");
+
+        $dbValue = $type->convertToDatabaseValue($phone, new SqlitePlatform());
         $this->assertIsString($dbValue);
+        $this->assertEquals("+33623456789", $dbValue);
 
         $phpValue = $type->convertToPHPValue($dbValue, new SqlitePlatform());
-        $this->assertEquals($sms, $phpValue);
+        $this->assertEquals($phone, $phpValue);
     }
 }

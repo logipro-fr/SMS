@@ -13,6 +13,8 @@ use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSmsResponse;
 use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Domain\Model\Sms\SmsId;
 use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
@@ -26,12 +28,16 @@ class SendNoCreditSmsContext implements Context
     private SendSmsRequest $request;
     private const ERROR_MESSAGE = "Insufficient SMS credit";
     private const RESPONSE_OBJECT = "responseobject.json";
+    private FactorySmsBuilder $factory;
+
 
     public function __construct()
     {
         $dotenv = new Dotenv();
         $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
         $dotenv->loadEnv(getcwd() . '/secret.env');
+
+        $this->factory = new FactorySmsBuilder();
     }
 
     /**
@@ -55,7 +61,10 @@ class SendNoCreditSmsContext implements Context
      */
     public function theSmsSendingRequestIsTriggered(): void
     {
-        $this->request = FactorySmsBuilder::createRequestServiceSms($this->message, $this->phoneNumber);
+        $this->request = $this->factory->createRequestServiceSms(
+            new MessageText($this->message),
+            new MobilePhoneNumber($this->phoneNumber)
+        );
 
         $mock = new MockHandler([
             new Response(200, [], Utils::streamFor(json_encode([]))),
@@ -72,11 +81,12 @@ class SendNoCreditSmsContext implements Context
 
         $smsApi = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SendSmsService($repository, $smsApi);
+        $factory = new FactorySmsBuilder();
+        $service = new SendSmsService($repository, $smsApi, $factory);
+
 
         try {
-            $service->execute($this->request);
-            $this->response = $service->getResponse();
+            $this->response = $service->execute($this->request);
         } catch (\Exception $e) {
             $fakeSmsId = new SmsId('error');
             $this->response = new SendSmsResponse($e->getMessage(), $fakeSmsId);

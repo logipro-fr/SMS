@@ -1,10 +1,11 @@
 <?php
 
-namespace Sms\Tests\Integration;
+namespace Sms\tests\integration;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumberException;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
@@ -19,7 +20,7 @@ class SmsIntegrationTest extends TestCase
     {
         parent::setUp();
         $dotenv = new Dotenv();
-        $dotenv->overload(getcwd() . '/src/Infrastructure/Shared/Symfony/.env.local');
+        $dotenv->overload(getcwd() . '/secret.env');
     }
 
 
@@ -41,7 +42,7 @@ class SmsIntegrationTest extends TestCase
 
     public function testShouldThrowOnInvalidNumber(): void
     {
-        $this->expectException(SmsApiBadReceiversException::class);
+        $this->expectException(InvalidPhoneNumberException::class);
 
         $client = new Client();
         $smsApi = new OvhSmsSender($client);

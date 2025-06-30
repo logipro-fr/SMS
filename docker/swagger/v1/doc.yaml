@@ -11,13 +11,16 @@ paths:
   /sms/send:
     post:
       summary: Sending an SMS
-      operationId: Sms
+      operationId: sendSms
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - messageText
+                - phoneNumber
               properties:
                 messageText:
                   type: string
@@ -37,15 +40,10 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates whether the SMS send was successful
+                    description: SMS sent successfully
                     example: true
-                  statusCode:
-                    type: string
-                    description: Name of the exception class if any error occurs
-                    example:
                   data:
                     type: object
-                    description: Details about the sent SMS
                     properties:
                       statusMessage:
                         type: string
@@ -53,10 +51,10 @@ paths:
                         example: Message sent successfully
                       smsId:
                         type: string
-                        description: Sms identity
+                        description: SMS identity
                         example: sms_123456780
-        '403':
-          description: Invalids credentials
+        '400':
+          description: Invalid phone number or bad receivers
           content:
             application/json:
               schema:
@@ -64,12 +62,56 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates whether the SMS send was successful
                     example: false
-                  statusCode:
-                    type: string
-                    description: Name of the exception class if any error occurs
-                    example: SmsApiNoCreditException
                   data:
                     type: object
-                    example:
+                    example: {}
+                  error:
+                    type: string
+                    description: Exception class names such as InvalidPhoneNumberException or SmsApiBadReceiverException
+                    example: InvalidPhoneNumberException
+                  error-message:
+                    type: string
+                    example: Invalid phone number or bad receivers
+        '402':
+          description: Insufficient credit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  data:
+                    type: object
+                    example: {}
+                  error:
+                    type: string
+                    enum:
+                      - SmsApiNoCreditException
+                    example: SmsApiNoCreditException
+                  error-message:
+                    type: string
+                    example: Insufficient credit to send SMS
+        '403':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  data:
+                    type: object
+                    example: {}
+                  error:
+                    type: string
+                    enum:
+                      - InvalidApiKeyException
+                    example: InvalidApiKeyException
+                  error-message:
+                    type: string
+                    example: Invalid OVH API key

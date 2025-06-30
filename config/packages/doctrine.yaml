@@ -4,7 +4,7 @@ doctrine:
     types:
       sms_id: Sms\Infrastructure\Persistence\Doctrine\Types\SmsIdType
       phonenumber: Sms\Infrastructure\Persistence\Doctrine\Types\PhoneNumberType
-      messagetext: Sms\Infrastructure\Persistence\Doctrine\Types\MessageTextType
+      messageText: Sms\Infrastructure\Persistence\Doctrine\Types\MessageTextType
 
       
   orm:

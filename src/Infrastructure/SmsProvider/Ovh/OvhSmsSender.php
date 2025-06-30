@@ -3,7 +3,9 @@
 namespace Sms\Infrastructure\SmsProvider\Ovh;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Ovh\Api;
+use Sms\Application\Services\Sms\Exceptions\SmsApiInvalidApiKeyException;
 use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
 use Sms\Application\Services\Sms\Exceptions\SmsApiNoCreditException;
 use Sms\Domain\Model\Sms\MessageText;
@@ -27,13 +29,10 @@ class OvhSmsSender implements SenderProviderInterface
     private const LINK_OVH = "/sms/%s/jobs";
     private const SERVICE_NUMBER_OVH = 0;
 
-
     public function __construct(
         private ?Client $http_client
     ) {
-        $this->http_client = $http_client;
     }
-
 
     public function sendSmsService(MobilePhoneNumber $phoneNumber, MessageText $message): StatusMessage
     {
@@ -52,8 +51,24 @@ class OvhSmsSender implements SenderProviderInterface
             $this->http_client,
         );
 
-        /** @var array<string> $smsServices */
-        $smsServices = $conn->get('/sms/');
+        try {
+            /** @var array<string> $smsServices */
+            $smsServices = $conn->get('/sms/');
+        } catch (ClientException $e) {
+            $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+
+            if (
+                is_array($responseBody) &&
+                isset($responseBody['message']) &&
+                is_string($responseBody['message']) &&
+                str_contains($responseBody['message'], 'application key is invalid')
+            ) {
+                throw new SmsApiInvalidApiKeyException('Invalid OVH application key');
+            }
+
+            throw $e;
+        }
+
         /** @var array<int|string,bool> $response */
         $response = $conn->post(sprintf(self::LINK_OVH, $smsServices[self::SERVICE_NUMBER_OVH]), $content);
 
@@ -63,22 +78,23 @@ class OvhSmsSender implements SenderProviderInterface
             throw new SmsApiNoCreditException('Insufficient SMS credit');
         }
 
-        if ($response['validReceivers']) {
+        if (!empty($response['validReceivers'])) {
             return new StatusMessage(self::SENDING_MESSAGE);
+        } else {
+            throw new SmsApiBadReceiversException(self::ERROR_RECEIVERS);
         }
-        throw new SmsApiBadReceiversException(self::ERROR_RECEIVERS);
     }
 
     /**
      * @return array<string, array<string>|bool|int|string>
      */
-    public function getContent(string $messagetext, string $phoneNumber): array
+    public function getContent(string $messageText, string $phoneNumber): array
     {
         return [
             "charset" => self::CHARSET,
             "class" => self::MESSAGECLASS,
             "coding" => self::CODING,
-            "message" => $messagetext,
+            "message" => $messageText,
             "noStopClause" => self::NOSTOPCLAUSE,
             "priority" => self::PRIORITY,
             "receivers" => [$phoneNumber],

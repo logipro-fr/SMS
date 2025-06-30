@@ -8,7 +8,7 @@ use Sms\Domain\Model\Sms\MessageText;
 
 class MessageTextType extends Type
 {
-    public const TYPE_NAME = 'messagetext';
+    public const TYPE_NAME = 'messageText';
     public function getName()
     {
         return self::TYPE_NAME;
@@ -16,8 +16,9 @@ class MessageTextType extends Type
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return "text";
+        return 'VARCHAR(255)';
     }
+
     /**
      * @param MessageText $value
      */

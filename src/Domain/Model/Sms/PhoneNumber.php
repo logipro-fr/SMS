@@ -2,7 +2,7 @@
 
 namespace Sms\Domain\Model\Sms;
 
-use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumberException;
 
 class PhoneNumber
 {
@@ -23,7 +23,7 @@ class PhoneNumber
     {
         $number = preg_replace(self::SPACE_PATTERN, '', $number) ?? '';
         if ($number === '') {
-            throw new InvalidPhoneNumber('Bad and empty character in phone number');
+            throw new InvalidPhoneNumberException('Invalid phone number or bad receivers');
         }
         return $number;
     }
@@ -33,7 +33,7 @@ class PhoneNumber
     {
         if (!preg_match(self::PATTERN_PHONE_NUMBER, $number)) {
             $escapedPhoneNumber = htmlspecialchars($number, ENT_QUOTES, 'UTF-8');
-            throw new InvalidPhoneNumber('Invalid phone number ' . $escapedPhoneNumber);
+            throw new InvalidPhoneNumberException('Invalid phone number ' . $escapedPhoneNumber);
         }
     }
 
@@ -54,5 +54,10 @@ class PhoneNumber
             $this->number
         );
         return $formatedNumber ?? '';
+    }
+
+    public function __toString(): string
+    {
+        return $this->number;
     }
 }

@@ -20,14 +20,14 @@ class SmsIdType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform): string
     {
-        return $value;
+        return (string)$value;
     }
     /**
      * @param string $value
      */
     public function convertToPHPValue($value, AbstractPlatform $platform): SmsId
     {
-                return new SmsId($value);
+         return new SmsId($value);
     }
 
     /**

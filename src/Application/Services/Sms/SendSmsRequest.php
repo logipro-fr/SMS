@@ -9,7 +9,7 @@ class SendSmsRequest
 {
     public function __construct(
         public readonly MobilePhoneNumber $phoneNumber,
-        public readonly MessageText $message
+        public readonly MessageText $messageText
     ) {
     }
 }

@@ -11,7 +11,7 @@ class MessageTest extends TestCase
     public function testMessage(): void
     {
         $message = new MessageText(self::MESSAGE);
-        $this->assertEquals(self::MESSAGE, $message->getMessagetext());
+        $this->assertEquals(self::MESSAGE, $message->getMessageText());
         $this->assertInstanceOf(MessageText::class, $message);
     }
 }

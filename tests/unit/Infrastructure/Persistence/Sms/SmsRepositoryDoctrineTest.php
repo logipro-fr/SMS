@@ -17,7 +17,7 @@ class SmsRepositoryDoctrineTest extends SmsRepositoryTestBase
     protected function initialize(): void
     {
         $this->initDoctrineTester();
-        $this->clearTables(["sms"]);
+        $this->clearTables(['sms']);
         $this->repository = new SmsRepositoryDoctrine($this->getEntityManager());
     }
 
@@ -26,8 +26,11 @@ class SmsRepositoryDoctrineTest extends SmsRepositoryTestBase
         $sms = $this->createMock(Sms::class);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())->method('persist')->with($sms);
-        $em->expects($this->once())->method('flush');
+        $em->expects($this->once())
+           ->method('persist')
+           ->with($this->identicalTo($sms));
+        $em->expects($this->once())
+           ->method('flush');
 
         $classMetadata = new ClassMetadata(Sms::class);
         $em->method('getClassMetadata')->willReturn($classMetadata);
@@ -36,17 +39,15 @@ class SmsRepositoryDoctrineTest extends SmsRepositoryTestBase
         $repo->add($sms);
     }
 
-
     public function testFindByIdThrowsExceptionIfNotFound(): void
     {
         $smsId = $this->createMock(SmsId::class);
-        $smsId->method('__toString')->willReturn('12345');
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('find')->willReturn(null);
 
         $classMetadata = new ClassMetadata(Sms::class);
-        $classMetadata->name = Sms::class; // <- essentiel
+        $classMetadata->name = Sms::class;
 
         $em->method('getClassMetadata')->willReturn($classMetadata);
 

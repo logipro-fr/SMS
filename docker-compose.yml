@@ -60,6 +60,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin
+    container_name: "sms-phpmyadmin"
     restart: always
     environment:
       PMA_HOST: sms-mariadb

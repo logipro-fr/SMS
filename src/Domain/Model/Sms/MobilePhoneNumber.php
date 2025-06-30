@@ -2,7 +2,7 @@
 
 namespace Sms\Domain\Model\Sms;
 
-use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumber;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumberException;
 
 class MobilePhoneNumber extends PhoneNumber
 {
@@ -20,7 +20,12 @@ class MobilePhoneNumber extends PhoneNumber
     {
         if (!preg_match(self::PATTERN_MOBILE_PHONE_NUMBER, $number)) {
             $escapedPhoneNumber = htmlspecialchars($number, ENT_QUOTES, 'UTF-8');
-            throw new InvalidPhoneNumber('Invalid phone number ' . $escapedPhoneNumber);
+            throw new InvalidPhoneNumberException('Invalid phone number ' . $escapedPhoneNumber);
         }
+    }
+
+    public function __toString(): string
+    {
+        return $this->number;
     }
 }

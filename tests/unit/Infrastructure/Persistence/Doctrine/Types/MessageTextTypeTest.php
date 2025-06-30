@@ -11,13 +11,13 @@ class MessageTextTypeTest extends TestCase
 {
     public function testGetNameTypes(): void
     {
-        $this->assertEquals('messagetext', (new MessageTextType())->getName());
+        $this->assertEquals('messageText', (new MessageTextType())->getName());
     }
 
     public function testConvertToPHPValue(): void
     {
         $type = new MessageTextType();
-        $id = $type->convertToPHPValue("messagetext", new SqlitePlatform());
+        $id = $type->convertToPHPValue("messageText", new SqlitePlatform());
         $this->assertEquals(true, $id instanceof MessageText);
     }
 

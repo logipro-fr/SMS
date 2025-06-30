@@ -5,6 +5,8 @@ namespace Sms\Infrastructure\Persistence\Doctrine\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
+use Sms\Domain\Model\Sms\PhoneNumber;
 
 class PhoneNumberType extends Type
 {
@@ -18,22 +20,16 @@ class PhoneNumberType extends Type
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return serialize($value);
+        return $value->__toString();
     }
 
-    /** @param string $value */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-
-        $phonenumber = unserialize($value);
-
-        return $phonenumber;
+        return new MobilePhoneNumber($value);
     }
-
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-
-        return $platform->getBlobTypeDeclarationSQL($column);
+        return 'VARCHAR(255)';
     }
 }

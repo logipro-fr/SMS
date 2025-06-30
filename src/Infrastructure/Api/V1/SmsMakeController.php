@@ -2,72 +2,93 @@
 
 namespace Sms\Infrastructure\Api\V1;
 
-use Exception;
+use Sms\Application\Services\Sms\Exceptions\SmsApiInvalidApiKeyException;
+use Sms\Application\Services\Sms\Exceptions\SmsApiNoCreditException as ExceptionsSmsApiNoCreditException;
+use Sms\Application\Services\Sms\Exceptions\SmsSendingException as ExceptionsSmsSendingException;
 use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSmsService;
-use Sms\Domain\Model\Sms\FactorySmsBuilder;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
-use Sms\Domain\Model\Sms\SmsId;
-use Sms\Domain\Model\Sms\SmsRepositoryInterface;
-use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
+use Sms\Domain\Model\Sms\Exceptions\InvalidPhoneNumberException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use function Safe\json_decode;
-
 class SmsMakeController
 {
-    private const SENDING_CODE = 200;
-    public function __construct(private SmsRepositoryInterface $repository, private OvhSmsSender $sendSms)
+    public function __construct(private SendSmsService $sendSmsService)
     {
     }
-    #[Route('api/v1/sms/send', 'SendSms', methods: ['POST'])]
-    public function execute(Request $request): Response
-    {
-        $request = $this->buildMakeSmsRequest($request);
 
-        $sms = new SendSmsService($this->repository, $this->sendSms);
+    #[Route('/api/v1/sms/send', methods: ['POST'])]
+    public function sendSms(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!is_array($data) || !isset($data['phoneNumber'], $data['messageText'])) {
+            return new JsonResponse([
+                'success' => false,
+                'data' => new \stdClass(),
+                'error' => 'Paramètres invalides ou manquants',
+                'error-message' => 'Paramètres manquants ou invalides'
+            ], Response::HTTP_BAD_REQUEST);
+        }
 
         try {
-            $sms->execute($request);
-        } catch (Exception $e) {
-            return new JsonResponse(
-                [
+            if (!is_string($data['phoneNumber']) || !is_string($data['messageText'])) {
+                return new JsonResponse([
                     'success' => false,
-                    'statusCode' => '',
-                    'data' => '',
-                    'message' => "$e",
-                ]
-            );
-        }
-        $response = $sms->getResponse();
-        return new JsonResponse(
-            [
+                    'data' => new \stdClass(),
+                    'error' => 'Type invalide',
+                    'error-message' => 'Le numéro ou le message doit être une chaîne',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $phoneNumber = new MobilePhoneNumber($data['phoneNumber']);
+            $messageText = new MessageText($data['messageText']);
+
+            $sendSmsRequest = new SendSmsRequest($phoneNumber, $messageText);
+
+            $sendSmsResponse = $this->sendSmsService->execute($sendSmsRequest);
+
+            return new JsonResponse([
                 'success' => true,
-                'statusCode' => "",
                 'data' => [
-                    'statusMessage' => $response->statusMessage,
-                    'smsId' => $response->smsId->getId()
+                    'statusMessage' => $sendSmsResponse->statusMessage,
+                    'smsId' => (string) $sendSmsResponse->smsId,
                 ],
-                'message' => "",
-            ],
-            self::SENDING_CODE
-        );
-    }
-
-    private function buildMakeSmsRequest(Request $request): SendSmsRequest
-    {
-        $requestContent = $request->getContent();
-        $data = json_decode($requestContent, true);
-        /** @var array<string> $data*/
-        $message = $data['messageText'];
-        /** @var string $phoneNumber */
-        $phoneNumber =  $data['phoneNumber'];
-        $sms = FactorySmsBuilder::createsms($message, $phoneNumber, new SmsId());
-
-        return new SendSmsRequest(new MobilePhoneNumber($phoneNumber), new MessageText($message));
+                'error' => '',
+                'error-message' => ''
+            ], Response::HTTP_OK);
+        } catch (ExceptionsSmsApiNoCreditException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'data' => new \stdClass(),
+                'error' => 'SmsApiNoCreditException',
+                'error-message' => $e->getMessage(),
+            ], Response::HTTP_PAYMENT_REQUIRED); // 402
+        } catch (SmsApiInvalidApiKeyException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'data' => new \stdClass(),
+                'error' => 'InvalidApiKeyException',
+                'error-message' => $e->getMessage(),
+            ], Response::HTTP_FORBIDDEN);
+        } catch (ExceptionsSmsSendingException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'data' => new \stdClass(),
+                'error' => 'SmsSendingException',
+                'error-message' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'success' => false,
+                'data' => new \stdClass(),
+                'error' => 'Erreur interne',
+                'error-message' => 'Une erreur interne est survenue',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

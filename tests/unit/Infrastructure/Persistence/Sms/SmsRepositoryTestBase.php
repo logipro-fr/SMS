@@ -24,6 +24,7 @@ abstract class SmsRepositoryTestBase extends TestCase
 
     abstract protected function initialize(): void;
 
+
     public function testFindById(): void
     {
         $id = new SmsId("id");

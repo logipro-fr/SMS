@@ -3,11 +3,16 @@
 namespace Sms\Tests\Infrastructure\SmsProvider\Ovh;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Utils;
+use Ovh\Api;
 use PHPUnit\Framework\TestCase;
 use Sms\Application\Services\Sms\Exceptions\SmsApiBadReceiversException;
+use Sms\Application\Services\Sms\Exceptions\SmsApiInvalidApiKeyException;
 use Sms\Domain\Model\Sms\MessageText;
 use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;

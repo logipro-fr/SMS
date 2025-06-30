@@ -6,9 +6,9 @@ class SmsId
 {
     private string $id;
 
-    public function __construct(string $id = "")
+    public function __construct(?string $defaultId = null)
     {
-        $this->id = $id ?: uniqid("sms_");
+        $this->id = $defaultId ?? 'sms_' . uniqid();
     }
 
     public function __toString(): string
@@ -16,13 +16,13 @@ class SmsId
         return $this->id;
     }
 
-    public function equals(SmsId $smsId): bool
-    {
-        return $this->id === $smsId->id;
-    }
-
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function equals(SmsId $other): bool
+    {
+        return $this->id === (string) $other;
     }
 }

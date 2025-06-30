@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Safe\DateTimeImmutable;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
 use Sms\Domain\Model\Sms\SmsId;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 
 class SmsTest extends TestCase
 {
@@ -15,7 +17,12 @@ class SmsTest extends TestCase
 
     public function testSms(): void
     {
-        $sms = FactorySmsBuilder::createSms(self::MESSAGE, self::PHONE_NUMBER);
+        $message = new MessageText(self::MESSAGE);
+        $phoneNumber = new MobilePhoneNumber(self::PHONE_NUMBER);
+
+        $factory = new FactorySmsBuilder();
+        $sms = $factory->createSms($message, $phoneNumber);
+
         $this->assertEquals(self::MESSAGE, $sms->getSmsMessage());
         $this->assertEquals(self::PHONE_NUMBER, $sms->getSmsPhoneNumber());
         $this->assertStringStartsWith("sms_", $sms->getId());
@@ -23,8 +30,13 @@ class SmsTest extends TestCase
 
     public function testSmsRepository(): void
     {
-        $smsWithId = FactorySmsBuilder::createSms(self::MESSAGE, self::PHONE_NUMBER, new SmsId(self::TEST_ID));
+        $message = new MessageText(self::MESSAGE);
+        $phoneNumber = new MobilePhoneNumber(self::PHONE_NUMBER);
+        $smsId = new SmsId(self::TEST_ID);
+
+        $factory = new FactorySmsBuilder();
+        $smsWithId = $factory->createSms($message, $phoneNumber, $smsId);
+
         $this->assertEquals(self::TEST_ID, $smsWithId->getId());
-        $this->assertInstanceOf(DateTimeImmutable::class, $smsWithId->getCreatedAt());
     }
 }

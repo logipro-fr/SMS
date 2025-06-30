@@ -2,168 +2,93 @@
 
 namespace Sms\Tests\Infrastructure\Api\V1;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request as Psr7Request;
-use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Sms\Infrastructure\Api\V1\SmsMakeController;
-use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
-use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Sms\Application\Services\Sms\SendSmsService;
+use Sms\Application\Services\Sms\SendSmsRequest;
+use Sms\Application\Services\Sms\SendSmsResponse;
+use Sms\Domain\Model\Sms\SmsId;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-use function Safe\json_decode;
-use function Safe\json_encode;
-
-class SmsMakeControllerTest extends WebTestCase
+class SmsMakeControllerTest extends TestCase
 {
-    private const RESPONSE_OBJECT = "responseobject.json";
-    private const SENDING_CODE = 200;
-    private const PHONE_NUMBER = "+33623456789";
-    private const CONTENT_TYPE = 'application/json';
-    private const ROOT_API_SMS = "/api/V1/Sms/";
+    private SmsMakeController $controller;
 
-    private KernelBrowser $client;
+    /** @var MockObject&SendSmsService */
+    private SendSmsService $sendSmsServiceMock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->client = static::createClient(["debug" => false]);
-    }
-    public function testControllerRouting(): void
-    {
-        $this->client->request(
-            "POST",
-            "api/v1/sms/send",
-            [],
-            [],
-            ['CONTENT_TYPE' => self::CONTENT_TYPE],
-            json_encode([
-                "messageText" => "test",
-                "phoneNumber" => self::PHONE_NUMBER,
-            ]),
-        );
-
-        $this->client->getResponse()->getContent();
-        $this->assertResponseIsSuccessful();
+        $this->sendSmsServiceMock = $this->createMock(SendSmsService::class);
+        $this->controller = new SmsMakeController($this->sendSmsServiceMock);
     }
 
-
-    public function testSmsControllerExecute(): void
+    public function testSendSmsReturnsBadRequestIfParametersMissing(): void
     {
-        $mock = new MockHandler([
-            new Response(self::SENDING_CODE, []),
-            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [[self::PHONE_NUMBER]]])),
-        ]);
-        $handlerStack = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handlerStack]);
-        $repository = new SmsRepositoryMemory();
-        $sendSms = new OvhSmsSender($client);
-        $controller = new SmsMakeController($repository, $sendSms);
-        $request = Request::create(
-            self::ROOT_API_SMS,
-            "GET",
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => self::CONTENT_TYPE],
-            json_encode([
-                "messageText" => "test",
-                "phoneNumber" => self::PHONE_NUMBER,
-            ]),
-        );
-        $response = $controller->execute($request);
-        /** @var string */
-        $responseContent = $response->getContent();
+        $request = new Request([], [], [], [], [], [], json_encode([]) ?: '');
 
-        /** @var \stdClass&object{success:bool,message:string,statusCode:string,data:object{statusMessage:string,smsId:string}} */
-        $responseObject = json_decode($responseContent);
+        $response = $this->controller->sendSms($request);
 
-        $this->assertTrue($responseObject->success);
-        $this->assertEquals("", $responseObject->message);
-        $this->assertEquals("", $responseObject->statusCode);
-        $this->assertEquals("Message sent successfully", $responseObject->data->statusMessage);
-        $this->assertStringStartsWith('sms_', $responseObject->data->smsId);
+        /** @var array{error: string} $data */
+        $data = json_decode($response->getContent() ?: '', true);
+
+        $this->assertEquals('Paramètres invalides ou manquants', $data['error']);
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(400, $response->getStatusCode());
     }
 
-
-
-    public function testSmsControllerJsonrESPONSE(): void
+    public function testSendSmsCallsServiceAndReturnsSuccess(): void
     {
-        $mock = new MockHandler([
-            new Response(self::SENDING_CODE, []),
-            new Response(self::SENDING_CODE, [], json_encode([self::RESPONSE_OBJECT])),
-            new Response(self::SENDING_CODE, [], json_encode(["validReceivers" => [["+33623456789"]]])),
-        ]);
-        $handlerStack = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handlerStack]);
-        $repository = new SmsRepositoryMemory();
-        $sendSms = new OvhSmsSender($client);
-        $controller = new SmsMakeController($repository, $sendSms);
-        $request = Request::create(
-            self::ROOT_API_SMS,
-            "GET",
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => self::CONTENT_TYPE],
-            json_encode([
-                "messageText" => "test",
-                "phoneNumber" => self::PHONE_NUMBER,
-            ]),
-        );
+        $phoneNumber = '+33601020304';
+        $messageText = 'Test message';
+        $smsId = 'abc123';
 
-        $response = $controller->execute($request);
+        $request = new Request([], [], [], [], [], [], json_encode([
+            'phoneNumber' => $phoneNumber,
+            'messageText' => $messageText,
+        ]) ?: '');
 
-        $content = $response->getContent();
+        $expectedResponse = new SendSmsResponse('Sent successfully', new SmsId($smsId));
 
-        /** @var \stdClass&object{success:bool,message:string,statusCode:string,data:object{statusMessage:string,smsId:string}} */
-        $responseObject = json_decode(strval($content));
+        $this->sendSmsServiceMock->expects($this->once())
+            ->method('execute')
+            ->with($this->isInstanceOf(SendSmsRequest::class))
+            ->willReturn($expectedResponse);
 
-        $this->assertTrue($responseObject->success);
-        $this->assertEquals("", $responseObject->message);
-        $this->assertEquals("", $responseObject->statusCode);
-        $this->assertEquals("Message sent successfully", $responseObject->data->statusMessage);
-        $this->assertStringStartsWith('sms_', $responseObject->data->smsId);
+        $response = $this->controller->sendSms($request);
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        /** @var array{status: string, smsId: string} $responseData */
+        $responseData = json_decode($response->getContent() ?: '', true);
+        $this->assertEquals('Sent successfully', $responseData['data']['statusMessage']);
+        $this->assertEquals($smsId, $responseData['data']['smsId']);
     }
 
-    public function testSmsControllerCatchException(): void
+    public function testSendSmsReturnsErrorOnException(): void
     {
-        $mock = new MockHandler([
-        new RequestException("Error Communicating with Server", new Psr7Request('POST', 'test')),
-        ]);
-        $handlerStack = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handlerStack]);
-        $repository = new SmsRepositoryMemory();
-        $sendSms = new OvhSmsSender($client);
-        $controller = new SmsMakeController($repository, $sendSms);
-        $request = Request::create(
-            self::ROOT_API_SMS,
-            "GET",
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => self::CONTENT_TYPE],
-            json_encode([
-            "messageText" => "test",
-            "phoneNumber" => self::PHONE_NUMBER,
-            ]),
-        );
+        $phoneNumber = '+33601020304';
+        $messageText = 'Test message';
 
-        $response = $controller->execute($request);
-        $content = $response->getContent();
+        $request = new Request([], [], [], [], [], [], json_encode([
+            'phoneNumber' => $phoneNumber,
+            'messageText' => $messageText,
+        ]) ?: '');
 
-        /** @var array{success:bool,statusCode:string,data:string,message:string} $responseData
-         * @var string  $content
-        */
-        $responseData = json_decode($content, true);
+        $this->sendSmsServiceMock->expects($this->once())
+            ->method('execute')
+            ->willThrowException(new \Exception('Erreur interne'));
 
-        $this->assertFalse($responseData['success']);
-        $this->assertEquals('', $responseData['statusCode']);
-        $this->assertEquals('', $responseData['data']);
-        $this->assertStringContainsString('Error Communicating with Server', $responseData['message']);
+        $response = $this->controller->sendSms($request);
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(500, $response->getStatusCode());
+
+        /** @var array{error: string} $data */
+        $data = json_decode($response->getContent() ?: '', true);
+        $this->assertEquals('Erreur interne', $data['error']);
     }
 }

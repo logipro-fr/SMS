@@ -2,6 +2,6 @@
 
 namespace Sms\Domain\Model\Sms\Exceptions;
 
-class InvalidPhoneNumber extends \Exception
+class InvalidPhoneNumberException extends \Exception
 {
 }

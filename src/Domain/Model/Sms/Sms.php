@@ -2,38 +2,40 @@
 
 namespace Sms\Domain\Model\Sms;
 
-use Safe\DateTimeImmutable;
-use Sms\Domain\Model\Sms\MessageText;
-use Sms\Domain\Model\Sms\PhoneNumber;
+use DateTimeImmutable;
 
 class Sms
 {
-    public DateTimeImmutable $createdAt;
+    private SmsId $id;
+    private MessageText $messageText;
+    private PhoneNumber $phoneNumber;
+    private DateTimeImmutable $createdAt;
+
     public function __construct(
-        private MessageText $messagetext,
-        private MobilePhoneNumber $phoneNumber,
-        private SmsId $id = new SmsId()
+        MessageText $messageText,
+        PhoneNumber $phoneNumber,
+        SmsId $id,
+        ?DateTimeImmutable $createdAt = null
     ) {
-        $this->messagetext = $messagetext;
+        $this->id = $id;
+        $this->messageText = $messageText;
         $this->phoneNumber = $phoneNumber;
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = $createdAt ?? new DateTimeImmutable();
     }
 
+    public function getId(): SmsId
+    {
+        return $this->id;
+    }
 
     public function getSmsMessage(): string
     {
-        return $this->messagetext->getMessagetext();
+        return $this->messageText->getMessageText();
     }
 
     public function getSmsPhoneNumber(): string
     {
         return $this->phoneNumber->getNumber();
-    }
-
-
-    public function getId(): SmsId
-    {
-        return $this->id;
     }
 
     public function getCreatedAt(): DateTimeImmutable

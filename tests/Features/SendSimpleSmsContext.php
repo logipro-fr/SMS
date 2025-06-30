@@ -13,34 +13,35 @@ use Sms\Application\Services\Sms\SendSmsRequest;
 use Sms\Application\Services\Sms\SendSmsResponse;
 use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
-use Sms\Domain\Model\Sms\SmsId;
+use Sms\Domain\Model\Sms\MessageText;
+use Sms\Domain\Model\Sms\MobilePhoneNumber;
 use Sms\Infrastructure\Persistence\Sms\SmsRepositoryMemory;
 use Sms\Infrastructure\SmsProvider\Ovh\OvhSmsSender;
 use Symfony\Component\Dotenv\Dotenv;
 
-/**
- * Defines application features from the specific context.
- */
 class SendSimpleSmsContext implements Context
 {
     private SendSmsResponse $response;
     private string $message;
     private string $phoneNumber;
     private SendSmsRequest $request;
+
+    private FactorySmsBuilder $factory;
+
     private const RESPONSE_OBJECT = "responseobject.json";
     private const SENDING_CODE = 200;
     private const SENDING_MESSAGE = "Message sent successfully";
-
 
     public function __construct()
     {
         $dotenv = new Dotenv();
         $dotenv->loadEnv(getcwd() . '/src/Infrastructure/Shared/Symfony/.env');
-
         $dotenv->loadEnv(getcwd() . '/secret.env');
+
+        $this->factory = new FactorySmsBuilder();
     }
 
-     /**
+    /**
      * @Given the text to send :messageText
      */
     public function theTextToSend(string $messageText): void
@@ -61,7 +62,10 @@ class SendSimpleSmsContext implements Context
      */
     public function submitsARequestToSendSms(): void
     {
-        $this->request = FactorySmsBuilder::createRequestServiceSms($this->message, $this->phoneNumber);
+        $messageText = new MessageText($this->message);
+        $mobilePhoneNumber = new MobilePhoneNumber($this->phoneNumber);
+
+        $this->request = $this->factory->createRequestServiceSms($messageText, $mobilePhoneNumber);
 
         $mock = new MockHandler([
             new Response(self::SENDING_CODE, []),
@@ -73,12 +77,10 @@ class SendSimpleSmsContext implements Context
 
         $smsApi = new OvhSmsSender($client);
         $repository = new SmsRepositoryMemory();
-        $service = new SendSmsService($repository, $smsApi);
 
+        $service = new SendSmsService($repository, $smsApi, $this->factory);
 
-        $service->execute($this->request);
-
-        $this->response = $service->getResponse();
+        $this->response = $service->execute($this->request);
     }
 
     /**

@@ -48,4 +48,19 @@ class SmsIdTest extends TestCase
 
         $this->assertFalse($smsId1->equals($smsId2));
     }
+
+    public function testShouldGenerateIdWithUniqidPrefixIfNoneProvided(): void
+    {
+        $smsId = new SmsId();
+
+        $idStr = (string) $smsId;
+
+        $this->assertNotEmpty($idStr, 'Generated ID should not be empty');
+        $this->assertStringStartsWith('sms_', $idStr, 'Generated ID should start with "sms_"');
+        $uniqidPart = substr($idStr, 4);
+
+        $this->assertMatchesRegularExpression('/^[a-f0-9]+$/i', $uniqidPart, 'uniqid part should be hexadecimal');
+
+        $this->assertEquals(13, strlen($uniqidPart), 'uniqid part length should be 13');
+    }
 }

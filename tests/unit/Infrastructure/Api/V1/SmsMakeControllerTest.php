@@ -1,94 +1,238 @@
 <?php
 
-namespace Sms\Tests\Infrastructure\Api\V1;
+namespace Tests\Sms\Infrastructure\Api\V1;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use Sms\Infrastructure\Api\V1\SmsMakeController;
-use Sms\Application\Services\Sms\SendSmsService;
-use Sms\Application\Services\Sms\SendSmsRequest;
+use Sms\Application\Services\Sms\Exceptions\SmsApiInvalidApiKeyException;
+use Sms\Application\Services\Sms\Exceptions\SmsApiNoCreditException;
+use Sms\Application\Services\Sms\Exceptions\SmsSendingException;
 use Sms\Application\Services\Sms\SendSmsResponse;
+use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\SmsId;
+use Sms\Infrastructure\Api\V1\SmsMakeController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SmsMakeControllerTest extends TestCase
 {
-    private SmsMakeController $controller;
+    /** @var SendSmsService&\PHPUnit\Framework\MockObject\MockObject */
+    private SendSmsService $sendSmsService;
 
-    /** @var MockObject&SendSmsService */
-    private SendSmsService $sendSmsServiceMock;
+    private SmsMakeController $controller;
 
     protected function setUp(): void
     {
-        $this->sendSmsServiceMock = $this->createMock(SendSmsService::class);
-        $this->controller = new SmsMakeController($this->sendSmsServiceMock);
+        $this->sendSmsService = $this->createMock(SendSmsService::class);
+        $this->controller = new SmsMakeController($this->sendSmsService);
     }
 
-    public function testSendSmsReturnsBadRequestIfParametersMissing(): void
+    public function testEmptyPayloadReturnsBadRequest(): void
     {
-        $request = new Request([], [], [], [], [], [], json_encode([]) ?: '');
-
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode([]) ?: '');
         $response = $this->controller->sendSms($request);
 
-        /** @var array{error: string} $data */
-        $data = json_decode($response->getContent() ?: '', true);
-
-        $this->assertEquals('Paramètres invalides ou manquants', $data['error']);
-        $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('Paramètres invalides ou manquants', $data['error']);
     }
 
-    public function testSendSmsCallsServiceAndReturnsSuccess(): void
+    public function testMissingParametersReturnsBadRequest(): void
     {
-        $phoneNumber = '+33601020304';
-        $messageText = 'Test message';
-        $smsId = 'abc123';
-
-        $request = new Request([], [], [], [], [], [], json_encode([
-            'phoneNumber' => $phoneNumber,
-            'messageText' => $messageText,
-        ]) ?: '');
-
-        $expectedResponse = new SendSmsResponse('Sent successfully', new SmsId($smsId));
-
-        $this->sendSmsServiceMock->expects($this->once())
-            ->method('execute')
-            ->with($this->isInstanceOf(SendSmsRequest::class))
-            ->willReturn($expectedResponse);
-
+        $payload = ['phoneNumber' => '+33612345678'];
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
         $response = $this->controller->sendSms($request);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('Paramètres invalides ou manquants', $data['error']);
+    }
+
+    public function testWrongTypeParametersReturnsBadRequest(): void
+    {
+        $payload = [
+            'phoneNumber' => 123456,
+            'messageText' => ['not', 'a', 'string'],
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
+        $response = $this->controller->sendSms($request);
+
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('Type invalide', $data['error']);
+    }
+
+    public function testSuccessfulSmsSending(): void
+    {
+        $this->sendSmsService
+            ->method('execute')
+            ->willReturn(new SendSmsResponse('Envoyé', new SmsId('abc123')));
+
+        $payload = [
+            'phoneNumber' => '+33612345678',
+            'messageText' => 'Hello',
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
+        $response = $this->controller->sendSms($request);
+
         $this->assertEquals(200, $response->getStatusCode());
 
-        /** @var array{status: string, smsId: string} $responseData */
-        $responseData = json_decode($response->getContent() ?: '', true);
-        $this->assertEquals('Sent successfully', $responseData['data']['statusMessage']);
-        $this->assertEquals($smsId, $responseData['data']['smsId']);
+        $content = $response->getContent();
+        $this->assertIsString($content);
+
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('success', $data);
+        $this->assertTrue($data['success']);
+
+        $this->assertArrayHasKey('data', $data);
+        $this->assertIsArray($data['data']);
+
+        $this->assertSame('Envoyé', $data['data']['statusMessage']);
+        $this->assertSame('abc123', $data['data']['smsId']);
     }
 
-    public function testSendSmsReturnsErrorOnException(): void
+
+    public function testNoCreditReturns402(): void
     {
-        $phoneNumber = '+33601020304';
-        $messageText = 'Test message';
-
-        $request = new Request([], [], [], [], [], [], json_encode([
-            'phoneNumber' => $phoneNumber,
-            'messageText' => $messageText,
-        ]) ?: '');
-
-        $this->sendSmsServiceMock->expects($this->once())
+        $this->sendSmsService
             ->method('execute')
-            ->willThrowException(new \Exception('Erreur interne'));
+            ->willThrowException(new SmsApiNoCreditException('Plus de crédit'));
 
+        $payload = [
+            'phoneNumber' => '+33612345678',
+            'messageText' => 'Message',
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
         $response = $this->controller->sendSms($request);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(402, $response->getStatusCode());
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('SmsApiNoCreditException', $data['error']);
+        $this->assertSame('Plus de crédit', $data['error-message']);
+
+    }
+
+    public function testInvalidApiKeyReturns403(): void
+    {
+        $this->sendSmsService
+            ->method('execute')
+            ->willThrowException(new SmsApiInvalidApiKeyException('Clé invalide'));
+
+        $payload = [
+            'phoneNumber' => '+33612345678',
+            'messageText' => 'Message',
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
+        $response = $this->controller->sendSms($request);
+
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('SmsApiInvalidApiKeyException', $data['error']);
+        $this->assertSame('Clé invalide', $data['error-message']);
+    }
+
+    public function testSmsSendingExceptionReturns500(): void
+    {
+        $this->sendSmsService
+            ->method('execute')
+            ->willThrowException(new SmsSendingException('Erreur SMS'));
+
+        $payload = [
+            'phoneNumber' => '+33612345678',
+            'messageText' => 'Message',
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
+        $response = $this->controller->sendSms($request);
+
         $this->assertEquals(500, $response->getStatusCode());
 
-        /** @var array{error: string} $data */
-        $data = json_decode($response->getContent() ?: '', true);
-        $this->assertEquals('Erreur interne', $data['error']);
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('SmsSendingException', $data['error']);
+        $this->assertSame('Erreur SMS', $data['error-message']);
     }
+
+    public function testGenericExceptionReturns500(): void
+    {
+        $this->sendSmsService
+            ->method('execute')
+            ->willThrowException(new \RuntimeException('Inconnue'));
+
+        $payload = [
+            'phoneNumber' => '+33612345678',
+            'messageText' => 'Test',
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload) ?: '');
+        $response = $this->controller->sendSms($request);
+
+        $this->assertEquals(500, $response->getStatusCode());
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $data = json_decode($content, true);
+        $this->assertIsArray($data);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('Erreur interne', $data['error']);
+        $this->assertSame('Une erreur interne est survenue', $data['error-message']);
+        
+    }
+
+    public function testPhoneNumberWrongTypeReturnsBadRequest(): void
+    {
+        $payload = [
+            'phoneNumber' => ['not', 'a', 'string'],
+            'messageText' => 'Hello',
+        ];
+
+        $request = Request::create('/api/v1/sms/send', 'POST', [], [], [], [], json_encode($payload));
+        $response = $this->controller->sendSms($request);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertFalse($data['success']);
+        $this->assertSame('Type invalide', $data['error']);
+        $this->assertSame('Le numéro ou le message doit être une chaîne', $data['error-message']);
+    }
+
 }

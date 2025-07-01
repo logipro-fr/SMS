@@ -110,8 +110,8 @@ paths:
                   error:
                     type: string
                     enum:
-                      - InvalidApiKeyException
-                    example: InvalidApiKeyException
+                      - SmsApiInvalidApiKeyException
+                    example: SmsApiInvalidApiKeyException
                   error-message:
                     type: string
                     example: Invalid OVH API key

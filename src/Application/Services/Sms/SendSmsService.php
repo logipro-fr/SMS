@@ -37,8 +37,8 @@ class SendSmsService
             return new SendSmsResponse($statusMessage, $sms->getId());
         } catch (
             SmsApiNoCreditException |
-                 SmsApiInvalidApiKeyException |
-                 SmsApiBadReceiversException $e
+            SmsApiInvalidApiKeyException |
+            SmsApiBadReceiversException $e
         ) {
             throw $e;
         } catch (\Exception $e) {

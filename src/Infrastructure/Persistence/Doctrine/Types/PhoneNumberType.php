@@ -17,12 +17,17 @@ class PhoneNumberType extends Type
         return self::TYPE_NAME;
     }
 
-
+    /**
+     * @param MobilePhoneNumber $value
+     */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         return $value->__toString();
     }
 
+    /**
+     * @param string $value
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return new MobilePhoneNumber($value);

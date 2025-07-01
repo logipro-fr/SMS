@@ -26,6 +26,7 @@ class SmsIdTypeTest extends TestCase
     {
         $type = new SmsIdType();
         $dbValue = $type->convertToDatabaseValue($id = new SmsId(), new SqlitePlatform());
+        $this->assertIsString($dbValue);
         $this->assertEquals($id->__toString(), $dbValue);
     }
 }

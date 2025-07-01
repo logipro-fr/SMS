@@ -168,4 +168,85 @@ class OvhSmsSenderTest extends TestCase
             new MessageText(self::MESSAGE)
         );
     }
+    public function testThrowsInvalidApiKeyExceptionOnInvalidApiKeyMessage(): void
+    {
+        $responseBody = json_encode(['message' => 'application key is invalid']);
+
+        $mock = new MockHandler([
+            new Response(400, [], $responseBody),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $sender = new OvhSmsSender($client);
+
+        $this->expectException(SmsApiInvalidApiKeyException::class);
+        $this->expectExceptionMessage('Invalid OVH application key');
+
+        $sender->sendSmsService(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
+    }
+
+    public function testSendSmsServiceRethrowsClientExceptionIfNotInvalidApiKeyMessage(): void
+    {
+        $responseBody = json_encode(['message' => 'Some other error message']);
+
+        $mock = new MockHandler([
+            new Response(400, [], $responseBody),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $sender = new OvhSmsSender($client);
+
+        $this->expectException(ClientException::class);
+
+        $sender->sendSmsService(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
+    }
+
+    public function testDoesNotThrowInvalidApiKeyExceptionIfMessageKeyIsMissing(): void
+    {
+        $responseBody = json_encode(['error' => 'application key is invalid']);
+
+        $mock = new MockHandler([
+            new Response(400, [], $responseBody),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $sender = new OvhSmsSender($client);
+
+        $this->expectException(ClientException::class);
+
+        $sender->sendSmsService(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
+    }
+
+    public function testDoesNotThrowInvalidApiKeyExceptionIfMessageIsNotString(): void
+    {
+        $responseBody = json_encode(['message' => ['application key is invalid']]);
+
+        $mock = new MockHandler([
+            new Response(400, [], $responseBody),
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $sender = new OvhSmsSender($client);
+
+        $this->expectException(ClientException::class);
+
+        $sender->sendSmsService(
+            new MobilePhoneNumber(self::PHONE_NUMBER),
+            new MessageText(self::MESSAGE)
+        );
+    }
+
 }

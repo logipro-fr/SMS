@@ -67,12 +67,12 @@ class SmsMakeController
                 'data' => new \stdClass(),
                 'error' => 'SmsApiNoCreditException',
                 'error-message' => $e->getMessage(),
-            ], Response::HTTP_PAYMENT_REQUIRED); // 402
+            ], Response::HTTP_PAYMENT_REQUIRED);
         } catch (SmsApiInvalidApiKeyException $e) {
             return new JsonResponse([
                 'success' => false,
                 'data' => new \stdClass(),
-                'error' => 'InvalidApiKeyException',
+                'error' => 'SmsApiInvalidApiKeyException',
                 'error-message' => $e->getMessage(),
             ], Response::HTTP_FORBIDDEN);
         } catch (ExceptionsSmsSendingException $e) {

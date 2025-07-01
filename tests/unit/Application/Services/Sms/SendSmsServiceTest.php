@@ -13,7 +13,10 @@ use Sms\Application\Services\Sms\Exceptions\SmsSendingException;
 use Sms\Application\Services\Sms\SendSmsService;
 use Sms\Domain\Model\Sms\SmsRepositoryInterface;
 use Sms\Application\Services\Sms\SenderProviderInterface;
+use Sms\Application\Services\Sms\SendSmsResponse;
 use Sms\Domain\Model\Sms\FactorySmsBuilder;
+use Sms\Domain\Model\Sms\Sms;
+use Sms\Domain\Model\Sms\StatusMessage;
 
 class SendSmsServiceTest extends TestCase
 {
@@ -74,6 +77,14 @@ class SendSmsServiceTest extends TestCase
         $this->service->execute($this->createRequest());
     }
 
+    private function createRequest(): SendSmsRequest
+    {
+        return new SendSmsRequest(
+            new MobilePhoneNumber('+33612345678'),
+            new MessageText('Hello')
+        );
+    }
+
     public function testShouldThrowSmsSendingExceptionOnUnexpectedError(): void
     {
         $this->senderProvider
@@ -85,17 +96,43 @@ class SendSmsServiceTest extends TestCase
 
         try {
             $this->service->execute($this->createRequest());
+            $this->fail('Expected SmsSendingException was not thrown.');
         } catch (SmsSendingException $e) {
+            $this->assertSame(0, $e->getCode(), 'Expected exception code 0');
             $this->assertInstanceOf(\RuntimeException::class, $e->getPrevious());
+            $this->assertSame('Unexpected error', $e->getPrevious()->getMessage());
             throw $e;
         }
     }
 
-    private function createRequest(): SendSmsRequest
+    public function testShouldAddSmsToRepository(): void
     {
-        return new SendSmsRequest(
-            new MobilePhoneNumber('+33612345678'),
-            new MessageText('Hello')
-        );
+        $message = new MessageText('Hello');
+        $phoneNumber = new MobilePhoneNumber('+33612345678');
+        $sms = $this->createMock(Sms::class);
+
+        $this->factory
+            ->expects($this->once())
+            ->method('createSms')
+            ->with($message, $phoneNumber)
+            ->willReturn($sms);
+
+        $this->repository
+            ->expects($this->once())
+            ->method('add')
+            ->with($sms);
+
+        $statusMock = $this->createMock(StatusMessage::class);
+        $statusMock->method('getStatusMessage')->willReturn('Envoyé');
+
+        $this->senderProvider
+            ->method('sendSmsService')
+            ->willReturn($statusMock);
+
+        $request = new SendSmsRequest($phoneNumber, $message);
+
+        $response = $this->service->execute($request);
+
+        $this->assertInstanceOf(SendSmsResponse::class, $response);
     }
 }

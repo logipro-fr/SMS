@@ -248,5 +248,4 @@ class OvhSmsSenderTest extends TestCase
             new MessageText(self::MESSAGE)
         );
     }
-
 }

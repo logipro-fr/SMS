@@ -22,6 +22,10 @@ To use this project, you need to create a `secret.env` file in the root director
 - APPLICATION_KEY_OVH=YOUR_APPLICATION_KEY_OVH
 - APPLICATION_SECRET_OVH=YOUR_APPLICATION_SECRET_OVH
 - CONSUMER_KEY_OVH=YOUR_CONSUMER_KEY_OVH
+- PHONE_NUMBER=A_VALID_PHONENUMBER
+
+PHONE_NUMBER is required for integration tests, please provide a valid phone number in the correct format.
+
 
 ### Getting Your API Credentials
 
